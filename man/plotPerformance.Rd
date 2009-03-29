@@ -9,7 +9,7 @@
   market (e.g. DJIA or S&P500).
 }
 \usage{
-plotPerformance(h, weights, window = NULL, rf.rate = 0.01, new.plot = FALSE, y.min = -0.25, y.max = 0.25, bg = NULL, name = "", color = "red", colors = c())
+plotPerformance(h, weights, window = NULL, rfrate = 0.01, new.plot = TRUE, y.min = -0.25, y.max = 0.25, bg = NULL, name = "", color = "red", colors = c())
 
 compare.EqualWeighted(h, window, color = "#342a31", ...)
 

@@ -17,8 +17,6 @@
   corresponding correlation matrix).
 }
 \usage{
-getCorFilter.Shrinkage()
-
 cov.shrink(returns, sample = NULL, prior.fun = cov.prior.cc, ...)
 
 cov.sample(returns)
@@ -43,6 +41,7 @@ shrinkage.c(prior, sample)
   \item{prior.fun}{ Generates the prior/model covariance matrix }
   \item{S}{ The sample covariance matrix }
   \item{pi.est}{ The estimate returned from shrinkage.p }
+  \item{\dots}{ Additional parameters to pass to prior.fun }
 }
 \details{
   Most of the code related to the shrinkage estimator is tied to calculating a

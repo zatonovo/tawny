@@ -21,7 +21,7 @@
   provide their own parameters to this function.
 }
 \usage{
-filter.RMT(h, hint = c(4, 1), ..., type = 'kernel')
+filter.RMT(h, hint, ..., type = 'kernel')
 
 getRandomMatrix(m, t)
 
@@ -66,7 +66,6 @@ denoise(hist, lambda.plus = 1.6, h = NULL)
   \item{Q}{ Ratio of data points per time series }
   \item{sigma}{ Standard deviation of entries in h }
   \item{e.values}{ Eigenvalues }
-  \item{e.vectors}{ Eigenvectors }
   \item{steps}{ Number of steps to use in plotting theoretical MP distribution }
   \item{lambda.plus}{ The upper eigenvalue bound used to cutoff noisy eigenvalues. The default of 1.6 is based on empirical data and is not optimal. }
   \item{\dots}{ Further arguments to pass to mp.density.* function}
