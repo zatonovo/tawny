@@ -252,8 +252,8 @@ optimizePortfolio <- function(h, window, cor.gen=getCorFilter.RMT(), ...)
 # window. Consequently, the weights necessarily are valid for T+1 at the 
 # earliest.
 plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
-  new.plot=TRUE, y.min=-.25, y.max=.25, bg=NULL,
-  name='', color='red', colors=c(), lty=1, ltys=c(), ...)
+  new.plot=TRUE, y.min=-0.25, y.max=0.25, bg=NULL,
+  name='', color='red', colors=c())
 {
   require(PerformanceAnalytics, quietly=TRUE)
   if (is.null(window)) { window <- anylength(h) - anylength(weights) }
@@ -338,7 +338,8 @@ plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
       type="l",col=color,ylim=yrange,ylab="Return",xlab="Time", ...);
   }
 
-  stats$ltys <- c(ltys, lty)
+  # Ignore line types for now
+  #stats$ltys <- c(ltys, lty)
   stats$colors <- c(colors, name=color)
   names(stats$colors)[anylength(stats$colors)] <- name
   grid()

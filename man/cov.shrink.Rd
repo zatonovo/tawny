@@ -2,8 +2,8 @@
 \alias{cov.shrink}
 \alias{cov.sample}
 \alias{cov.prior.cc}
+\alias{cov.prior.identity}
 \alias{cor.mean}
-\alias{getCorFilter.Shrinkage}
 \alias{shrinkage.p}
 \alias{shrinkage.r}
 \alias{shrinkage.c}
@@ -19,11 +19,9 @@
 \usage{
 getCorFilter.Shrinkage()
 
-cov.shrink(returns, sample = NULL)
+cov.shrink(returns, sample = NULL, prior.fun = cov.prior.cc, ...)
 
 cov.sample(returns)
-
-cov.shrink(returns, sample = NULL)
 
 cov.prior.cc(S)
 
@@ -42,6 +40,7 @@ shrinkage.c(prior, sample)
   \item{returns}{ A zoo object of returns. This is TxM }
   \item{sample}{ The sample covariance matrix (synonomous to S) }
   \item{prior}{ The shrinkage target covariance matrix (synonomous to F) }
+  \item{prior.fun}{ Generates the prior/model covariance matrix }
   \item{S}{ The sample covariance matrix }
   \item{pi.est}{ The estimate returned from shrinkage.p }
 }

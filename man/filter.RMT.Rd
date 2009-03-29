@@ -93,10 +93,12 @@ mp.rho returns either a scalar or a vector.
 # Fit the appropriate MP curve to the data. This will estimate Q and sigma.
 # hist is a histogram object
 h <- getRandomMatrix(1000, 6000)
-hist <- mp.density(h)
-o <- optim(c(6,1), mp.fit(hist))
+hist <- mp.density.hist(h)
+o <- optim(c(6,1), mp.fit.hist(hist))
 
 # Calculate and plot the theoretical density distribution
 rho <- mp.theory(6,1)
+
+clean <- filter.RMT(h, c(6,1))
 }
 \keyword{ ts }

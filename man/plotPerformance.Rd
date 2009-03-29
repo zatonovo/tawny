@@ -9,9 +9,11 @@
   market (e.g. DJIA or S&P500).
 }
 \usage{
-plotPerformance(h, weights, window = NULL, new.plot = FALSE, color = "red", y.min = -0.25, y.max = 0.25, name = "", colors = c())
-compare.EqualWeighted(h, window, color = "slategray4", ...)
-compare.Market(market, obs, window, end = Sys.Date(), color = "#448943", ...)
+plotPerformance(h, weights, window = NULL, rf.rate = 0.01, new.plot = FALSE, y.min = -0.25, y.max = 0.25, bg = NULL, name = "", color = "red", colors = c())
+
+compare.EqualWeighted(h, window, color = "#342a31", ...)
+
+compare.Market(market, obs, window, end = Sys.Date(), color = "#44bc43", ...)
 }
 \arguments{
   \item{h}{ Portfolio returns as used elsewhere in this package }
@@ -19,11 +21,13 @@ compare.Market(market, obs, window, end = Sys.Date(), color = "#448943", ...)
   \item{window}{ Size of window used in other calculations }
   \item{obs}{ Number of observations to retrieve }
   \item{end}{ End date of data to retrieve }
-  \item{color}{ Color of the plot }
+  \item{rfrate}{ A risk free rate to use when calculating the sharpe ratio }
   \item{new.plot}{ Pass-through to new in plot }
   \item{y.min}{ Minimum y value for plot }
   \item{y.max}{ Maximum y value for plot }
+  \item{bg}{ }
   \item{name}{ The name of the series to use in the legend }
+  \item{color}{ Color of the plot }
   \item{colors}{ Current colors (and names) of lines plotted on the chart }
   \item{market}{ A string or zoo/xts object representing the market to use }
   \item{\dots}{ Additional parameters to plot }
