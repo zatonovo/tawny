@@ -1,23 +1,33 @@
 # Calculate divergence between two probability density functions using the
 # Kullback-Leibler distance measure.
-divergence <- function(returns, size, count, fun, ...)
+# h - Returns matrix
+# window - number of points to sample (defaults to anylength(h))
+# count - number of observations to create
+# filter - function to apply
+# replace - whether to use replacement in bootstrapping
+# divergence(sp500.subset, 25, filter=getCorFilter.RMT())
+# divergence(sp500.subset, 25, filter=getCorFilter.Shrinkage())
+divergence <- function(h, count, window=NULL, filter=getCorFilter.RMT())
 {
-  # Resample count times
-  bootstraps <- list()
-  for (i in 1:count)
-  {
-    samples <- sample(1:nrow(returns), size)
-    bootstraps[[i]] <- returns[samples,]
-  }
+  if (is.null(window)) { window <- anylength(h) }
+  # Convert to matrix to allow duplicates
+  h <- matrix(h, ncol=ncol(h))
 
-  fn <- function(h)
+  div <- function(junk, h.full)
   {
-    cor.sample <- cov2cor(cov.sample(h))
-    cor.filter <- fun(h)
-    # Later make this dynamic in case someone comes up with something else
-    divergence.kl(cor.sample, cor.filter, ...)
+    h.window <- h.full[sample(index(h.full), window, replace=TRUE), ]
+    c.sample <- cov2cor(cov.sample(h.window))
+    c.model <- filter(h.window)
+
+    divergence <- divergence.kl(c.sample, c.model)
+    return(divergence)
   }
-  lapply(bootstraps, fn)
+  ds <- sapply(1:count, div, h)
+
+  theory <- divergenceLimit.kl(ncol(h), window)
+  #cat("Theoretical divergence is",theory,"\n")
+
+  return(c(mean=mean(ds), limit=theory))
 }
 
 # Measuring information compares sample correlation matrix with filtered
@@ -32,33 +42,33 @@ divergence.kl <- function(sigma.1, sigma.2)
 }
 
 # The expected value of the divergence for random matrices
-divergenceLimit.kl <- function(n, T=NULL)
+divergenceLimit.kl <- function(m, t=NULL)
 {
-  if (is.null(T))
+  if (is.null(t))
   {
-    T <- n[2]
-    n <- n[1]
+    t <- m[2]
+    m <- m[1]
   }
 
-  l <- T - n + 1
-  0.5 * ( n * log(T/2) - sum(digamma((l:T)/2)) )
+  l <- t - m + 1
+  0.5 * ( m * log(t/2) - sum(digamma((l:t)/2)) )
 }
 
 # plotDivergenceLimit.kl(100, 80:499, col='green', ylim=c(0,55))
 # plotDivergenceLimit.kl(80, 80:499, col='orange', overlay=TRUE)
 # plotDivergenceLimit.kl(40, 80:499, col='red', overlay=TRUE)
-plotDivergenceLimit.kl <- function(n, T.range, ..., overlay=FALSE)
+plotDivergenceLimit.kl <- function(m, t.range, ..., overlay=FALSE)
 {
-  ns <- rep(n,length(T.range))
-  limit <- apply(matrix(c(ns, T.range), ncol=2), 1, divergenceLimit.kl)
+  ns <- rep(m,length(t.range))
+  limit <- apply(matrix(c(ns, t.range), ncol=2), 1, divergenceLimit.kl)
   if (! overlay)
   {
     ylab <- 'Expected KL divergence'
-    plot(T.range/n, limit, ylab=ylab, xlab='Q', type='l', ...)
+    plot(t.range/m, limit, ylab=ylab, xlab='Q', type='l', ...)
   }
   else
   {
-    lines(T.range/n, limit, type='l', ...)
+    lines(t.range/m, limit, type='l', ...)
   }
 
   invisible(limit)

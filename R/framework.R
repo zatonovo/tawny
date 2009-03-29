@@ -193,11 +193,6 @@ getPortfolioReturns <- function(symbols, obs=NULL, start=NULL, end=Sys.Date(),
   p[idx.inf:idx.sup, ]
 }
 
-# Return a portion of a matrix. This is useful for debugging.
-peek <- function(x, upper=5, lower=1)
-{
-  return(x[lower:upper,lower:upper])
-}
 
 # Example
 #  h <- getPortfolioReturns(c('MER','C','GS','MS','BAC','AAPL','GOOG','MSFT','IBM','CSCO'),150)
@@ -332,7 +327,7 @@ plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
 
   if (log.level > 3) { cat("Plotting chart\n") }
   #plot(xaxis, stats$cum.returns,
-  if (anylength(dev.list()) > 0 & new.plot)
+  if (anylength(dev.list()) > 0 & new.plot & is.null(bg))
   {
     par(new=new.plot)
     lines(stats$cum.returns, col=color, ...)

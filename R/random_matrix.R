@@ -4,11 +4,11 @@ library(zoo)
 library(quantmod)
 
 # This is the default filter
-getCorFilter.RMT <- function(breaks=NULL, hint=c(4,1))
+getCorFilter.RMT <- function(hint=c(4,1), ...)
 {
   # h is a zoo object and will be t x m
   #function(h) { filter.RMT(t(h), breaks, hint) }
-  function(h) return(filter.RMT(h, breaks, hint))
+  function(h) return(filter.RMT(h, hint=hint, ...))
 }
 
 # This acts as a control case with no cleaning
@@ -56,15 +56,14 @@ optimizePortfolio.RMT <- function(h, window=NULL, breaks=NULL, hint=c(4,1))
 }
 
 # Transition in progress to TxM - filter.RMT now takes TxM xts object
-filter.RMT <- function(h, breaks=NULL, hint=c(4,1))
+filter.RMT <- function(h, hint, ..., type='kernel')
 {
   log.level <- logLevel()
 
   if (log.level > 1) { cat("Calculating eigenvalue distribution\n") }
-  #mp.hist <- mp.density.hist(h, breaks=breaks, showHist=usePlots())
-  mp.hist <- mp.density.kernel(h)
+  mp.hist <- do.call(paste('mp.density.',type,sep=''), list(h, ...))
 
-  mp.params <- optim(hint, mp.fit.kernel(mp.hist))
+  mp.params <- optim(hint, do.call(paste('mp.fit.',type,sep=''), list(mp.hist)))
   mp.Q <- mp.params$par[1]
   mp.sigma <- mp.params$par[2]
   if (log.level > 0) { cat("Fit to Marcenko-Pastur with Q",mp.Q,"and sigma",mp.sigma,"\n") }
@@ -89,11 +88,11 @@ filter.RMT <- function(h, breaks=NULL, hint=c(4,1))
   if (log.level > 0)
   {
     cat("Upper cutoff (lambda.max) is",lambda.plus,"\n")
+    cat("Variance is",sigma.2,"\n")
   }
   if (log.level > 1)
   {
     cat("Greatest eigenvalue is",lambda.1,"\n")
-    cat("Variance is",sigma.2,"\n")
   }
   e.clean <- clean.bouchaud(t(h), mp.hist$values, lambda.plus)
 
@@ -102,6 +101,7 @@ filter.RMT <- function(h, breaks=NULL, hint=c(4,1))
 }
 
 # h TxM zoo returns matrix
+# TODO: Determine whether these are right. Self correlations aren't 1
 cor.empirical <- function(h)
 {
   # Normalize returns
@@ -152,13 +152,13 @@ mp.density.hist <- function(h, showHist=TRUE, breaks=NULL, cutoff=0.01)
   hist
 }
 
-mp.density.kernel <- function(h, ...)
+mp.density.kernel <- function(h, adjust=0.2, kernel='e', ...)
 {
   e <- cor.empirical(h)
 
   # Calculate eigenvalues
   lambda <- eigen(e, symmetric=TRUE, only.values=FALSE)
-  ds <- density(lambda$values, ...)
+  ds <- density(lambda$values, adjust=adjust, kernel=kernel, ...)
   ds$values <- lambda$values
   ds$vectors <- lambda$vectors
   plot(ds, xlim=c(0,6))
@@ -394,19 +394,16 @@ clean.bouchaud <- function(h, lambdas, lambda.plus=1.6)
 #  h: non-normalized returns matrix (only used for labels)
 denoise <- function(e.values, e.vectors, h=NULL)
 {
-  #c.clean <- e.vectors %*% diag(e.values) %*% t(e.vectors)
-  #diag(c.clean) <- 1
-  ## These cleaned eigen values aren't really used
-  ##c.denoised <- eigen(c.clean, symmetric=TRUE, only.values=FALSE)
-  #if (! is.null(h))
-  #{
-  #  rownames(c.clean) <- rownames(h)
-  #  colnames(c.clean) <- rownames(h)
-  #}
-  #c.clean
   c.clean <- e.vectors %*% diag(e.values) %*% t(e.vectors)
   diags <- diag(c.clean) %o% rep(1, nrow(c.clean))
-  return(c.clean / sqrt(diags * t(diags)))
+  c.clean <- c.clean / sqrt(diags * t(diags))
+
+  if (! is.null(h))
+  {
+    rownames(c.clean) <- rownames(h)
+    colnames(c.clean) <- rownames(h)
+  }
+  c.clean
 }
 
 
