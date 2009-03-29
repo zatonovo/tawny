@@ -1,8 +1,6 @@
 \name{getPortfolioReturns}
 \alias{getIndexComposition}
 \alias{getPortfolioReturns}
-\alias{logLevel}
-\alias{usePlots}
 \alias{ensure}
 \title{ Utility functions for creating portfolios of returns and other functions }
 \description{
@@ -14,15 +12,12 @@
   that can be used in conjunction with getPortfolioReturns() to get the underlying
   returns of the given index.
 
-  Additionally, there are other utility functions that help manage the overall
-  system, including controlling logging, whether to generate plots in  batch
-  mode, and ensuring that symbols have been properly loaded.
+  Additionally, there is a utility function that ensures that symbols have been
+  properly loaded.
 }
 \usage{
 getIndexComposition(ticker = '^GSPC', hint = NA, src = 'yahoo')
 getPortfolioReturns(symbols, obs = NULL, start = NULL, end = Sys.Date(), fun = function(x) Delt(Cl(x)), reload = FALSE, na.value = NA, ...)
-logLevel(new.level = NULL)
-usePlots(new.val = NULL)
 ensure(serie, src = 'FRED', reload = FALSE, ...)
 }
 \arguments{
@@ -36,8 +31,6 @@ ensure(serie, src = 'FRED', reload = FALSE, ...)
   \item{fun}{ A transform applied to the downloaded data. The default is to calculate returns on the close. }
   \item{reload}{ Whether to reload data or just download missing data }
   \item{na.value}{ What value to use if the resulting portfolio has NAs. The default is to omit any assets containing NA values. }
-  \item{new.level}{ What value to set the log level. Use 0 to be quiet and 10 for most verbose. }
-  \item{new.val}{ A logical value }
   \item{serie}{ A vector (or scalar) of tickers to ensure exist in the current environment }
   \item{\dots}{ Additional parameters to pass to getSymbols }
 }
@@ -50,9 +43,6 @@ ensure(serie, src = 'FRED', reload = FALSE, ...)
 
   getIndexComposition returns a vector of asset symbols (i.e. tickers).
 
-  logLevel returns the current log level (0 no logging, 10 max loggin).
-
-  usePlots returns a logical indicating whether plotting is enabled.
   ensure returns nothing.
 }
 \author{ Brian Lee Yung Rowe}
@@ -69,18 +59,5 @@ h <- getPortfolioReturns(getIndexComposition('^DJI'), obs=100, reload=TRUE)
 
 # Ensure that some assets exist
 ensure(c('K','JNPR'), src='yahoo')
-
-# Get the current log level
-logLevel()
-
-# Set the current log level
-logLevel(0)
-
-# Determine if plotting is enabled (turn off for faster processing)
-usePlots()
-
-# Change the plot setting
-usePlots(FALSE)
-
 }
 \keyword{ ts }

@@ -1,13 +1,16 @@
 \name{filter.RMT}
 \alias{filter.RMT}
 \alias{getRandomMatrix}
-\alias{mp.density}
+\alias{mp.density.hist}
+\alias{mp.density.kernel}
+\alias{mp.fit.hist}
+\alias{mp.fit.kernel}
 \alias{mp.eigen.max}
 \alias{mp.eigen.min}
-\alias{mp.fit}
 \alias{mp.lambdas}
 \alias{mp.rho}
 \alias{mp.theory}
+\alias{cor.empirical}
 \alias{r.normalize}
 \alias{clean.bouchaud}
 \alias{denoise}
@@ -18,17 +21,18 @@
   provide their own parameters to this function.
 }
 \usage{
-filter.RMT(h, breaks = NULL, hint = c(4, 1))
+filter.RMT(h, hint = c(4, 1), ..., type = 'kernel')
 
 getRandomMatrix(m, t)
 
-clean.bouchaud(h, lambdas, lambda.plus = 1.6)
+mp.theory(Q, sigma, e.values = NULL, steps = 200)
 
-denoise(e.values, e.vectors, h = NULL)
+mp.density.hist(h, breaks = NULL, cutoff = 0.01)
+mp.density.kernel(h, adjust = 0.2, kernel = 'e', ...)
 
-mp.density(h, showHist = TRUE, breaks = NULL, cutoff = 0.01)
-
-mp.theory(Q, sigma, lambda = NULL, steps = 200)
+# Fit the appropriate MP curve to the data. This will estimate Q and sigma.
+mp.fit.hist(hist)
+mp.fit.kernel(hist)
 
 # Marcenko-Pastur theoretical minimum and maximum eigenvalues
 mp.eigen.max(Q, sigma)
@@ -37,33 +41,35 @@ mp.eigen.min(Q, sigma)
 # Generate eigenvalues for theoretical MP distribution
 mp.lambdas(Q, sigma, steps)
 
-# Fit the appropriate MP curve to the data. This will estimate Q and sigma.
-mp.fit(hist)
-
 # This provides the density of the eigenvalues
-mp.rho(Q, sigma, lambda)
+mp.rho(Q, sigma, e.values)
 
 r.normalize(h)
+
+cor.empirical(h)
+
+denoise(hist, lambda.plus = 1.6, h = NULL)
 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{h}{ An M x T returns matrix }
-  \item{lambdas}{ A vector of eigenvalues from the correlation matrix }
-  \item{lambda.plus}{ The upper eigenvalue bound used to cutoff noisy eigenvalues. The default of 1.6 is based on empirical data and is not optimal. }
+  \item{h}{ A TxM returns matrix }
+  \item{hint}{ A hint to the optimizer for fitting a theoretical curve to the empirical distribution }
+  \item{type}{ The type of density calculation to use, either kernel or hist }
+  \item{m}{ Scalar representing the number of assets in a portfolio }
+  \item{t}{ Scalar representing the number of observations }
   \item{breaks}{ The breaks specification for building a histogram }
   \item{cutoff}{ A threshold to eliminate eigenvalues below this value. Used to improve the performance when correlations are too high and negative eigenvalues exist. }
-  \item{hint}{ A hint to the optimizer for fitting a theoretical curve to the empirical distribution }
+  \item{adjust}{ Option for density to scale bandwidth }
+  \item{kernel}{ Option for density to define what kernel estimator to use }
+  \item{hist}{ Histogram-like object that contains eigenvalues, eigenvectors, and density information }
   \item{Q}{ Ratio of data points per time series }
   \item{sigma}{ Standard deviation of entries in h }
   \item{e.values}{ Eigenvalues }
   \item{e.vectors}{ Eigenvectors }
-  \item{showHist}{ Whether to show histogram plot }
-  \item{lambda}{ Hint for lambda }
   \item{steps}{ Number of steps to use in plotting theoretical MP distribution }
-  \item{hist}{ Histogram object }
-  \item{m}{ Scalar representing the number of assets in a portfolio }
-  \item{t}{ Scalar representing the number of observations }
+  \item{lambda.plus}{ The upper eigenvalue bound used to cutoff noisy eigenvalues. The default of 1.6 is based on empirical data and is not optimal. }
+  \item{\dots}{ Further arguments to pass to mp.density.* function}
 }
 \details{
 The functions described here are the individual components for filtering a

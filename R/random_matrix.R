@@ -36,24 +36,24 @@ getCorFilter.raw <- function()
 #  s.weights <- rep(1/50, 50)
 #  s.stat <- plotPerformance(spx.small.history[,260:ncol(spx.small.history)], s.weights, TRUE, color="grey")
 # NOTE: This is superceded by optimizePortfolio
-optimizePortfolio.RMT <- function(h, window=NULL, breaks=NULL, hint=c(4,1))
-{
-  if (! 'zoo' %in% class(h))
-  { cat("WARNING: Zoo objects are preferred for dimensional safety\n") }
-
-  if (is.null(window)) { window <- nrow(h) }
-
-  my.rmt <- function(h)
-  {
-    # Internally we work on m x t
-    c.denoised <- filter.RMT(t(h), breaks, hint)
-
-    if (logLevel() > 0) { cat("Optimizing portfolio weights\n") }
-    p.optimize(h, c.denoised)
-  }
-
-  rollapply(h, window, my.rmt, by.column=FALSE, align='right')
-}
+#optimizePortfolio.RMT <- function(h, window=NULL, breaks=NULL, hint=c(4,1))
+#{
+#  if (! 'zoo' %in% class(h))
+#  { cat("WARNING: Zoo objects are preferred for dimensional safety\n") }
+#
+#  if (is.null(window)) { window <- nrow(h) }
+#
+#  my.rmt <- function(h)
+#  {
+#    # Internally we work on m x t
+#    c.denoised <- filter.RMT(t(h), breaks, hint)
+#
+#    if (logLevel() > 0) { cat("Optimizing portfolio weights\n") }
+#    p.optimize(h, c.denoised)
+#  }
+#
+#  rollapply(h, window, my.rmt, by.column=FALSE, align='right')
+#}
 
 # Transition in progress to TxM - filter.RMT now takes TxM xts object
 filter.RMT <- function(h, hint, ..., type='kernel')
@@ -94,10 +94,11 @@ filter.RMT <- function(h, hint, ..., type='kernel')
   {
     cat("Greatest eigenvalue is",lambda.1,"\n")
   }
-  e.clean <- clean.bouchaud(t(h), mp.hist$values, lambda.plus)
+  #e.clean <- clean.bouchaud(t(h), mp.hist$values, lambda.plus)
 
   if (log.level > 1) { cat("Cleaning correlation matrix\n") }
-  denoise(e.clean, mp.hist$vectors, t(h))
+  #denoise(e.clean, mp.hist$vectors, t(h))
+  denoise(mp.hist, lambda.plus, h)
 }
 
 # h TxM zoo returns matrix
@@ -124,7 +125,7 @@ cor.empirical <- function(h)
 #   ee <- mp.density(h)[0]
 #   ee <- mp.density(h, breaks=seq(0.01,3.01,0.02))
 # Returns hist with eigenvalues attached
-mp.density.hist <- function(h, showHist=TRUE, breaks=NULL, cutoff=0.01)
+mp.density.hist <- function(h, breaks=NULL, cutoff=0.01)
 {
   e <- cor.empirical(h)
 
@@ -143,8 +144,8 @@ mp.density.hist <- function(h, showHist=TRUE, breaks=NULL, cutoff=0.01)
   label <- paste('Eigenvalues (step size=',step,')',sep='')
   par(bg='#DDDDDD', cex.axis=0.6, cex.lab=0.8, col='#9599BB')
 
-  hist <- hist(lambda$values[lambda$values > cutoff], 
-    breaks=breaks, main=NA, xlab=label, freq=FALSE, xlim=c(0,6), plot=showHist)
+  hist <- hist(lambda$values[lambda$values > cutoff], breaks=breaks,
+    main=NA, xlab=label,xlim=c(0,6), freq=FALSE,plot=usePlots())
 
   # If properly normalized, these should sum to m
   hist$values <- lambda$values
@@ -166,13 +167,13 @@ mp.density.kernel <- function(h, adjust=0.2, kernel='e', ...)
 }
 
 # Calculate and plot the theoretical density distribution
-mp.theory <- function(Q, sigma, lambda=NULL, steps=200)
+mp.theory <- function(Q, sigma, e.values=NULL, steps=200)
 {
   # Plot a range of values
-  if (is.null(lambda)) { lambda <- mp.lambdas(Q,sigma,steps) }
-  rho <- mp.rho(Q,sigma, lambda)
+  if (is.null(e.values)) { e.values <- mp.lambdas(Q,sigma,steps) }
+  rho <- mp.rho(Q,sigma, e.values)
 
-  if (length(lambda) > 1)
+  if (anylength(e.values) > 1)
   {
     l.min <- mp.eigen.min(Q,sigma)
     l.max <- mp.eigen.max(Q,sigma)
@@ -209,14 +210,14 @@ mp.lambdas <- function(Q,sigma, steps)
 }
 
 # This provides the density of the eigenvalues
-# lambda can be a vector of eigen values or a single eigen value
-mp.rho <- function(Q,sigma, lambda)
+# e.values can be a vector of eigen values or a single eigen value
+mp.rho <- function(Q,sigma, e.values)
 {
   l.min <- mp.eigen.min(Q,sigma)
   l.max <- mp.eigen.max(Q,sigma)
 
   k <- (Q / 2*pi*sigma^2)
-  rho <- k * sqrt(pmax(0, (l.max-lambda)*(lambda-l.min)) ) / lambda
+  rho <- k * sqrt(pmax(0, (l.max-e.values)*(e.values-l.min)) ) / e.values
   rho
 }
 
@@ -358,50 +359,28 @@ r.normalize <- function(h) { apply(h, 2, function(x) x / sd(x)) }
 
 
 ##------------------------ CORRELATION MATRIX FUNCTIONS ---------------------##
-# Normalize eigenvalues below some threshold lambda
-# This is based on the Bouchaud cleaning trick
-# Params:
-#  h: m x t returns matrix
-#  lambdas: vector of eigenvalues
-#  lambda.plus: The upper bound that is used to cutoff noise. The default value
-#    is a generic upper lambda bound of the MP distribution.
-# Returns:
-#  cleaned eigenvalues with noise values normalized
-clean.bouchaud <- function(h, lambdas, lambda.plus=1.6)
-{
-  #m <- nrow(h)
-  ##lam.p <- lambda.plus * 1.1
-  #lam.p <- lambda.plus + 0.3
-  #lam.m <- lambda.plus * 0.9
-  #lambda.star <- sum(lambdas[lambdas<lam.p]) / length(lambdas[lambdas<lam.p])
-  #clean = numeric(m)
-  #for (i in 1:m)
-  #{
-  #  if (lambdas[i] > lam.m) { clean[i] <- lambdas[i] }
-  #  else { clean[i] <- lambda.star }
-  #}
-  #clean
-  avg <- mean(lambdas[lambdas < lambda.plus])
-  lambdas[lambdas < lambda.plus] <- avg
-  return(lambdas)
-}
-
-# Undo diagonalization of sample correlation matrix
+# Clean a correlation matrix based on calculated value of lambda.plus and the
+# computed eigenvalues.
 # This takes flattened eigenvalues and returns a new cleaned correlation matrix
 # Params:
 #  e.values: Cleaned eigenvalues
 #  e.vectors: Eigenvectors of correlation matrix of normalized returns
 #  h: non-normalized returns matrix (only used for labels)
-denoise <- function(e.values, e.vectors, h=NULL)
+denoise <- function(hist, lambda.plus=1.6, h=NULL)
 {
+  e.values <- hist$values
+  avg <- mean(e.values[e.values < lambda.plus])
+  e.values[e.values < lambda.plus] <- avg
+
+  e.vectors <- hist$vectors
   c.clean <- e.vectors %*% diag(e.values) %*% t(e.vectors)
   diags <- diag(c.clean) %o% rep(1, nrow(c.clean))
   c.clean <- c.clean / sqrt(diags * t(diags))
 
   if (! is.null(h))
   {
-    rownames(c.clean) <- rownames(h)
-    colnames(c.clean) <- rownames(h)
+    rownames(c.clean) <- anynames(h)
+    colnames(c.clean) <- anynames(h)
   }
   c.clean
 }

@@ -297,7 +297,7 @@ plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
   if (log.level > 2)
   {
     cat("Returns count:",anylength(ts.rets),"\n")
-    cat("Date count:",anylength(xaxis),"\n")
+    #cat("Date count:",anylength(xaxis),"\n")
   }
 
   stats <- list()
@@ -317,7 +317,7 @@ plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
   if (log.level > 3)
   {
     cat("y range = [",y.min,",",y.max,"]\n")
-    cat("x range = [",as.Date(start(xaxis)),",",as.Date(end(xaxis)),"]\n")
+    #cat("x range = [",as.Date(start(xaxis)),",",as.Date(end(xaxis)),"]\n")
   }
   #yrange=c(min(y.min, ts.perf-0.05), max(y.max, ts.perf+0.05))
   # Need to synchronize y bounds for multiple charts

@@ -3,6 +3,7 @@ Type: Package
 Title: Provides various portfolio optimization strategies including random matrix theory and shrinkage estimators
 Version: 1.0
 Depends: futile,zoo,xts,quantmod
+Suggests: PerformanceAnalytics
 Date: 2009-03-02
 Author: Brian Lee Yung Rowe
 Maintainer: Brian Lee Yung Rowe <tawny-help@muxspace.com>
