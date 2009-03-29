@@ -9,7 +9,7 @@
   market (e.g. DJIA or S&P500).
 }
 \usage{
-plotPerformance(h, weights, window = NULL, rfrate = 0.01, new.plot = TRUE, y.min = -0.25, y.max = 0.25, bg = NULL, name = "", color = "red", colors = c())
+plotPerformance(h, weights, window = NULL, rf.rate = 0.01, new.plot = TRUE, y.min = -0.25, y.max = 0.25, bg = NULL, name = "", color = "red", colors = c())
 
 compare.EqualWeighted(h, window, color = "#342a31", ...)
 
@@ -21,7 +21,7 @@ compare.Market(market, obs, window, end = Sys.Date(), color = "#44bc43", ...)
   \item{window}{ Size of window used in other calculations }
   \item{obs}{ Number of observations to retrieve }
   \item{end}{ End date of data to retrieve }
-  \item{rfrate}{ A risk free rate to use when calculating the sharpe ratio }
+  \item{rf.rate}{ A risk free rate to use when calculating the sharpe ratio }
   \item{new.plot}{ Pass-through to new in plot }
   \item{y.min}{ Minimum y value for plot }
   \item{y.max}{ Maximum y value for plot }
