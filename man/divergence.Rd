@@ -3,66 +3,46 @@
 \alias{divergence.kl}
 \alias{divergenceLimit.kl}
 \alias{plotDivergenceLimit.kl}
-\title{ }
+\title{ Measure the divergence between two correlation matrices }
 \description{
+  The Kullback-Leibler distance function can be used to measure the divergence
+  between two correlation matrices. Although originally designed for probability
+  density functions, the literature shows how this can be extended to 
+  correlation matrices. By using this function, one can determine objectively
+  the effectiveness of a particular filtering strategy for correlation matrices.
 }
 \usage{
-divergence(h)
-divergence.kl(h)
+divergence(h, count, window = NULL, filter = getCorFilter.RMT())
+divergence.kl(sigma.1, sigma.2)
+divergenceLimit.kl(m, t = NULL)
+plotDivergenceLimit.kl(m, t.range, ..., overlay = FALSE)
 }
 \arguments{
   \item{h}{ A zoo object representing a portfolio with dimensions T x M }
   \item{count}{ The number of bootstrap observations to create }
-  \item{window}{ }
-  \item{filter}{ }
-  \item{sigma.1}{ }
-  \item{sigma.2}{ }
-  \item{m}{ }
-  \item{t}{ }
-  \item{t.range}{ }
-  \item{overlay}{ }
-  \item{\dots}{ Additional parameters to pass to }
+  \item{window}{ The number of samples to include in each observation. Defaults to the anylength of h. }
+  \item{filter}{ The correlation filter to measure }
+  \item{sigma.1}{ The sample correlation matrix }
+  \item{sigma.2}{ The model correlation matrix (aka the filtered matrix) }
+  \item{m}{ The number of assets }
+  \item{t}{ The number of samples (dates) in an observation }
+  \item{t.range}{ A range of date samples. This can be a simple interval so long as it matches the number of samples per asset in the measured correlation matrix. }
+  \item{overlay}{ Overlay the divergence limit plot on an existing plot. Default is FALSE. }
+  \item{\dots}{ Additional parameters to pass to plot or lines }
 }
-\details{
-  This is the primary entry point to using the tawny package. This function 
-  calculates the portfolio weights over the portfolio based on a rolling window.
-  Given M assets in the portfolio, T total observations, and a window of length
-  t, the resulting weights object will have dimensions T - t + 1 x M.
-
-  The weights matrix can then be analyzed to calculate standard portfolio
-  performance metrics. A simple analytics function is provided so that 
-  cumulative returns can be easily viewed, although for more sophisticated
-  analysis other packages should be used.
-
-  In theory any compatible correlation matrix generator can be used (and has in
-  practice to test against proprietary risk models) and the function will
-  generate portfolio weights accordingly. To leverage the remainder of the
-  package, the \code{getCorFilter.RMT} function or \code{getCorFilter.Shrinkage}
-  should be called. These wrappers are somewhat superfluous but does provide 
-  some utility by ensuring compatibility with the underlying RMT code that uses
-  transposed matrices (pre-zoo integration). Additionally, by way of closures
-  these functions are used to store hints to the optimizer and any final data
-  massaging, potentially cleaning up code but admittedly can be serviced via 
-  the normal dots mechanism.
-  In the future, the default will be a direct handle to the underlying function
-  once the rest of the code is converted to zoo.
-
-  The secondary function \code{divergence.RMT} exists to optimize the 
-  correlation matrix using RMT exclusively. This is a more direct route to 
-  accessing the RMT functionality and might be more convenient to use. The 
-  intention is that the base divergence function becomes a generic 
-  function that passes on to specific implementations, but the mechanics haven't
-  been worked out yet. It is also possible to extract the optimizer and pass 
-  that in explicitly as a function.
-}
+%\details{
+%}
 \value{
-  A weights zoo object with T - t + 1 dates and M assets. The dates are aligned
-  to the end date.
+  A summary of the results of the divergence calculation including the mean
+  divergence and an effective limit based on a random matrix.
 }
 \author{ Brian Lee Yung Rowe}
 \examples{
-data(sp500.subset)
-ys <- sp500.subset
-ws <- divergence(ys, 150, getCorFilter.RMT() )
+plotDivergenceLimit.kl(100, 80:499, col='green', ylim=c(0,55))
+
+divergence(sp500.subset, 25, filter=getCorFilter.RMT())
+
+divergence(sp500.subset, 25, filter=getCorFilter.Shrinkage())
+
 }
 \keyword{ ts }
