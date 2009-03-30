@@ -72,7 +72,7 @@ shrinkage.c(prior, sample)
 
   # Optimize the portfolio weights using the shrinkage estimator
   ws <- optimizePortfolio(ys, 150, getCorFilter.Shrinkage())
-  plotPerformance(ys,ws)
+  plotPerformance(ys,ws, bg='white', name='Shrinkage')
 
   # Calculate the sample covariance matrix
   S <- cov.sample(ys)

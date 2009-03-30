@@ -61,16 +61,20 @@ ensure <- function(serie, src='FRED', reload=FALSE, ...)
 {
   for (series in serie)
   {
-    if (! reload)
-    {
-      cleaned <- sub('^','', series, fixed=TRUE)
-      if (exists(cleaned)) { next }
-      cat("Loading new symbol",series,"from",src,"\n")
-    }
-    else
-    {
-      cat("(Re)loading symbol",series,"from",src,"\n")
-    }
+    if (exists('from')) from <- get('from')
+    if (exists('to')) to <- get('to')
+
+    # Force a reload under certain situations
+    cleaned <- sub('^','', series, fixed=TRUE)
+    if (! exists(cleaned)) reload <- TRUE
+    else if (! 'Date' %in% class(start(get(cleaned))) ) reload <- TRUE
+    else if (! 'Date' %in% class(end(get(cleaned))) ) reload <- TRUE
+    else if (exists('from') & start(get(cleaned)) > from) reload <- TRUE
+    else if (exists('to') & end(get(cleaned)) < to) reload <- TRUE
+
+    if (! reload) next
+
+    cat("(Re)loading symbol",series,"from",src,"\n")
     try(getSymbols(series, src=src, ...))
   }
 }
@@ -151,13 +155,14 @@ getPortfolioReturns <- function(symbols, obs=NULL, start=NULL, end=Sys.Date(),
   for (s in symbols)
   {
     if (!exists(s)) next
-    if (logLevel() > 0) cat("Binding",s,".")
+    if (logLevel() > 0) cat("Binding",s,"for ")
     raw <- fun(get(s))
-    if (logLevel() > 0) cat("Start:",start(raw),"; end:",end(raw),"\n")
+    if (logLevel() > 0)
+      cat("[",format(start(raw)),",",format(end(raw)),"]\n",sep='')
     a <- xts(raw, order.by=index(get(s)))
     p <- cbind(p, a[2:anylength(a)])
   }
-  anynames(p) <- symbols
+  colnames(p) <- symbols
   # First remove dates that have primarily NAs (probably bad data)
   o.dates <- rownames(p)
   p <- p[apply(p, 1, function(x) sum(x, na.rm=TRUE) != 0), ]
@@ -253,10 +258,9 @@ optimizePortfolio <- function(h, window, cor.gen=getCorFilter.RMT(), ...)
 # earliest.
 plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
   new.plot=TRUE, y.min=-0.25, y.max=0.25, bg=NULL,
-  name='', color='red', colors=c())
+  name='', color='red', colors=c(), ...)
 {
-  require(PerformanceAnalytics, quietly=TRUE)
-  if (is.null(window)) { window <- anylength(h) - anylength(weights) }
+  if (is.null(window)) { window <- anylength(h) - anylength(weights) + 1 }
 
   if (! 'zoo' %in% class(h))
   { cat("WARNING: Zoo objects are preferred for dimensional safety\n") }
@@ -265,7 +269,52 @@ plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
   { cat("WARNING: Dimensions are inconsistent. This can cause errors\n") }
 
   log.level <- logLevel()
+  ts.rets <- portfolioReturns(h, weights)
+  stats <- portfolioPerformance(ts.rets, window, rf.rate)
 
+  # Plot this output
+  if (log.level > 3)
+  {
+    cat("y range = [",y.min,",",y.max,"]\n")
+    #cat("x range = [",as.Date(start(xaxis)),",",as.Date(end(xaxis)),"]\n")
+  }
+  #yrange=c(min(y.min, ts.perf-0.05), max(y.max, ts.perf+0.05))
+  # Need to synchronize y bounds for multiple charts
+  yrange=c(y.min, y.max)
+  #if (! is.null(bg)) par(bg=bg, lab=c(7,7,7))
+  #else par(lab=c(7,7,7))
+
+  if (log.level > 3) { cat("Plotting chart\n") }
+  if (anylength(dev.list()) > 0 & new.plot & is.null(bg))
+  {
+    par(lab=c(7,7,7), new=new.plot)
+    lines(stats$cum.returns, col=color, ...)
+  }
+  else
+  {
+    if (!is.null(bg)) par(bg=bg)
+    par(lab=c(7,7,7))
+    plot(stats$cum.returns,
+      type="l",col=color,ylim=yrange,ylab="Return",xlab="Time", ...);
+  }
+
+  # Ignore line types for now
+  #stats$ltys <- c(ltys, lty)
+  stats$colors <- c(colors, name=color)
+  names(stats$colors)[anylength(stats$colors)] <- name
+  grid()
+  #legend('topright', legend=names(stats$colors), lwd=2, cex=1.0, 
+  #  col=stats$colors, border.col='slategray4', inset=0.02)
+  legend('topright', legend=names(stats$colors), lwd=2, cex=1.0, 
+    col=stats$colors, inset=0.02)
+
+  stats
+}
+
+# Calculate portfolio returns based
+portfolioReturns <- function(h, weights)
+{
+  log.level <- logLevel()
   if (log.level > 5) { cat("class(index(h)):",class(index(h)),"\n") }
 
   # Shift dates so weights are used on following date's data for out-of-sample
@@ -290,65 +339,36 @@ plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
     ts.rets[is.na(ts.rets)] <- 0
   }
 
-  #ts.perf <- cumprod(1+ts.rets) - 1
-  #xaxis <- as.Date(index(ts.perf))
-  #xaxis <- as.Date(index(ts.rets))
-
   if (log.level > 2)
   {
     cat("Returns count:",anylength(ts.rets),"\n")
     #cat("Date count:",anylength(xaxis),"\n")
   }
 
+  return(ts.rets)
+}
+
+portfolioPerformance <- function(p, window, rf.rate=0.01)
+{
+  #require(PerformanceAnalytics, quietly=TRUE)
+  #ts.perf <- cumprod(1+p) - 1
+  #xaxis <- as.Date(index(ts.perf))
+  #xaxis <- as.Date(index(p))
+
   stats <- list()
-  stats$daily.returns <- ts.rets
+  stats$daily.returns <- p
   stats$cum.returns <- cumprod(1 + stats$daily.returns) - 1
-  stats$period.stdev <- as.numeric(sd(ts.rets, na.rm=TRUE))
-  stats$annual.stdev <- as.numeric(sd(ts.rets, na.rm=TRUE) * (252/window)^0.5)
-  #stats$drawdown <- maxDrawdown(ts.rets)
+  stats$period.stdev <- as.numeric(sd(p, na.rm=TRUE))
+  stats$annual.stdev <- as.numeric(sd(p, na.rm=TRUE) * (252/window)^0.5)
+  #stats$drawdown <- maxDrawdown(p)
   stats$avg.return <- mean(stats$daily.returns)
   stats$period.return <- as.numeric(last(stats$cum.returns))
   stats$annual.return <- (1 + stats$period.return)^(252/window) - 1
   #stats$sharpe.ratio <- (stats$annual.return - rf.rate) / stats$annual.stdev
   prf <- (1 + rf.rate)^(window/252) - 1
-  stats$sharpe.ratio <- SharpeRatio.annualized(stats$daily.returns, rf=prf, scale=252)
+  #stats$sharpe.ratio <- SharpeRatio.annualized(stats$daily.returns, rf=prf, scale=252)
 
-  # Plot this output
-  if (log.level > 3)
-  {
-    cat("y range = [",y.min,",",y.max,"]\n")
-    #cat("x range = [",as.Date(start(xaxis)),",",as.Date(end(xaxis)),"]\n")
-  }
-  #yrange=c(min(y.min, ts.perf-0.05), max(y.max, ts.perf+0.05))
-  # Need to synchronize y bounds for multiple charts
-  yrange=c(y.min, y.max)
-  if (! is.null(bg)) par(bg=bg, lab=c(7,7,7))
-  else par(lab=c(7,7,7))
-
-  if (log.level > 3) { cat("Plotting chart\n") }
-  #plot(xaxis, stats$cum.returns,
-  if (anylength(dev.list()) > 0 & new.plot & is.null(bg))
-  {
-    par(new=new.plot)
-    lines(stats$cum.returns, col=color, ...)
-  }
-  else
-  {
-    plot(stats$cum.returns,
-      type="l",col=color,ylim=yrange,ylab="Return",xlab="Time", ...);
-  }
-
-  # Ignore line types for now
-  #stats$ltys <- c(ltys, lty)
-  stats$colors <- c(colors, name=color)
-  names(stats$colors)[anylength(stats$colors)] <- name
-  grid()
-  legend('topright', legend=names(stats$colors), lwd=2, cex=1.0, 
-    col=stats$colors, border.col='slategray4', inset=0.02)
-  #legend('topright', legend=names(stats$colors), lwd=1, cex=1.0, 
-  #  col=stats$colors, lty=stats$ltys)
-
-  stats
+  return(stats)
 }
 
 # Compare with the given market

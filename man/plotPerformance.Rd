@@ -1,4 +1,6 @@
 \name{plotPerformance}
+\alias{portfolioReturns}
+\alias{portfolioPerformance}
 \alias{plotPerformance}
 \alias{compare.EqualWeighted}
 \alias{compare.Market}
@@ -9,14 +11,19 @@
   market (e.g. DJIA or S&P500).
 }
 \usage{
-plotPerformance(h, weights, window = NULL, rf.rate = 0.01, new.plot = TRUE, y.min = -0.25, y.max = 0.25, bg = NULL, name = "", color = "red", colors = c())
+portfolioReturns(h, weights)
+
+portfolioPerformance(p, window, rf.rate = 0.01)
+
+plotPerformance(h, weights, window = NULL, rf.rate = 0.01, new.plot = TRUE, y.min = -0.25, y.max = 0.25, bg = NULL, name = "", color = "red", colors = c(), ...)
 
 compare.EqualWeighted(h, window, color = "#342a31", ...)
 
 compare.Market(market, obs, window, end = Sys.Date(), color = "#44bc43", ...)
 }
 \arguments{
-  \item{h}{ Portfolio returns as used elsewhere in this package }
+  \item{h}{ Asset returns as used elsewhere in this package }
+  \item{p}{ Portfolio returns (h \%*\% weights) }
   \item{weights}{ Portfolio weights over the given time period }
   \item{window}{ Size of window used in other calculations }
   \item{obs}{ Number of observations to retrieve }
@@ -30,7 +37,7 @@ compare.Market(market, obs, window, end = Sys.Date(), color = "#44bc43", ...)
   \item{color}{ Color of the plot }
   \item{colors}{ Current colors (and names) of lines plotted on the chart }
   \item{market}{ A string or zoo/xts object representing the market to use }
-  \item{\dots}{ Additional parameters to plot }
+  \item{\dots}{ Additional parameters to plot/lines }
 }
 \details{
   These functions are provided to assist in the analysis of the resultant
@@ -64,7 +71,7 @@ data(sp500.subset)
 ys <- sp500.subset
 ws <- optimizePortfolio(ys, 150, getCorFilter.RMT())
 plotPerformance(ys, ws, 150)
-compare.EqualWeighted(ys, 200)
+compare.EqualWeighted(ys, 150)
 compare.Market('^GSPC', 200, 150)
 }
 \keyword{ ts }

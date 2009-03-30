@@ -38,10 +38,11 @@ plotDivergenceLimit.kl(m, t.range, ..., overlay = FALSE)
 }
 \author{ Brian Lee Yung Rowe}
 \examples{
+data(sp500.subset)
+
 plotDivergenceLimit.kl(100, 80:499, col='green', ylim=c(0,55))
 
 divergence(sp500.subset, 25, filter=getCorFilter.RMT())
-
 divergence(sp500.subset, 25, filter=getCorFilter.Shrinkage())
 
 }
