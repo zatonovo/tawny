@@ -37,6 +37,10 @@ ensure(serie, src = 'FRED', reload = FALSE, ...)
 \details{
   Typically only getPortfolioReturns and getIndexComposition will be used on a 
   regular basis.
+  
+  Ensure isn't as useful as initially conceived given that naming collisions
+  have caused numerous issues. The code now uses auto.assign=FALSE in the 
+  underlying getSymbols call.
 }
 \value{
   getPortfolioReturns returns a TxM xts object of asset returns.

@@ -109,10 +109,10 @@ mp.theory(Q=4.2, sigma=1.1)
 
 # Calculate the density of eigenvalues for a matrix of portfolio returns
 h <- getRandomMatrix(20, 100)
-hist <- mp.density(h)
+hist <- mp.density.kernel(h)
 
 # Fit an empirical distribution to a theoretical curve
 hint <- c(6,2)
-o <- optim(hint, mp.fit(hist))
+o <- optim(hint, mp.fit.kernel(hist))
 
 }

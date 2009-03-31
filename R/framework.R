@@ -67,15 +67,16 @@ ensure <- function(serie, src='FRED', reload=FALSE, ...)
     # Force a reload under certain situations
     cleaned <- sub('^','', series, fixed=TRUE)
     if (! exists(cleaned)) reload <- TRUE
+    else if (! 'zoo' %in% class(get(cleaned)) ) reload <- TRUE
     else if (! 'Date' %in% class(start(get(cleaned))) ) reload <- TRUE
     else if (! 'Date' %in% class(end(get(cleaned))) ) reload <- TRUE
-    else if (exists('from') & start(get(cleaned)) > from) reload <- TRUE
-    else if (exists('to') & end(get(cleaned)) < to) reload <- TRUE
+    else if (exists('from')) { if (start(get(cleaned)) > from) reload <- TRUE }
+    else if (exists('to')) { if (end(get(cleaned)) < to) reload <- TRUE }
 
     if (! reload) next
 
     cat("(Re)loading symbol",series,"from",src,"\n")
-    try(getSymbols(series, src=src, ...))
+    getSymbols(series, src=src, ...)
   }
 }
 
@@ -146,20 +147,18 @@ getPortfolioReturns <- function(symbols, obs=NULL, start=NULL, end=Sys.Date(),
   # ensure enough points, which get trimmed later
   if (is.null(start)) { start <- end - (10 + obs * 365/250) }
 
-  # Load symbols - The problem with this is that it is not time-aware. Need to
-  # think about what to do with it.
-  ensure(symbols, src='yahoo', reload=reload, from=start, to=end, ...)
+  #ensure(symbols, src='yahoo', reload=reload, from=start, to=end, ...)
 
   # Merge into a single zoo object
-  p <- xts(order.by=last(index(get(symbols[1]))))
+  p <- xts(order.by=end)
   for (s in symbols)
   {
-    if (!exists(s)) next
+    asset <- getSymbols(s, from=start, to=end, auto.assign=FALSE)
     if (logLevel() > 0) cat("Binding",s,"for ")
-    raw <- fun(get(s))
+    raw <- fun(asset)
     if (logLevel() > 0)
       cat("[",format(start(raw)),",",format(end(raw)),"]\n",sep='')
-    a <- xts(raw, order.by=index(get(s)))
+    a <- xts(raw, order.by=index(asset))
     p <- cbind(p, a[2:anylength(a)])
   }
   colnames(p) <- symbols
@@ -379,22 +378,17 @@ compare.Market <- function(market, obs, window, end=Sys.Date(), color='#44bc43',
   if (is.character(market))
   {
     start <- end - (10 + obs * 365/250)
-    ensure(market, src='yahoo', from=start, to=end)
-    mkt <- get(sub('^','', market, fixed=TRUE))
+    mkt <- getSymbols(market, src='yahoo',from=start,to=end, auto.assign=FALSE)
   }
   else mkt <- market
-  #mkt.trim <- mkt[index(mkt) <= end,]
-  #mkt.trim <- mkt.trim[(anylength(mkt.trim)-obs+1) : anylength(mkt.trim)]
 
   mkt.ret <- Delt(Cl(mkt))
   mkt.ret <- mkt.ret[index(mkt.ret) <= end]
-  mkt.ret <- mkt.ret[(anylength(mkt.ret)-(obs-window+1)):anylength(mkt.ret)]
+  mkt.ret <- tail(mkt.ret, obs)
 
-  weights <- xts(rep(1,anylength(mkt.ret)), order.by=index(mkt.ret))
-  # This is just a cheap way to get an xts object with all 1s
-  #weights <- Hi(mkt.trim[window:anylength(mkt.ret)]) ^ 0
-  #index(weights) <- index(mkt.ret[window:anylength(mkt.ret)])
-  #weights <- xts(rep(1, anylength(mkt.trim)-obs), order.by=index(mkt.ret[window:anylength(mkt.ret)]))
+  w.count <- obs - window + 1
+  weights <-
+    xts(matrix(1,ncol=1,nrow=w.count), order.by=index(tail(mkt.ret, w.count)))
 
   plotPerformance(mkt.ret, weights, window, color=color, name='market', ...)
 }
