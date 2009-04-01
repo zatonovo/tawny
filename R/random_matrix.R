@@ -96,14 +96,14 @@ filter.RMT <- function(h, hint, ..., type='kernel')
   }
   #e.clean <- clean.bouchaud(t(h), mp.hist$values, lambda.plus)
 
-  if (log.level > 2) readline()
+  if (log.level > 2) readline('Press Enter to continue...')
   if (log.level > 1) { cat("Cleaning correlation matrix\n") }
   #denoise(e.clean, mp.hist$vectors, t(h))
   denoise(mp.hist, lambda.plus, h)
 }
 
 # h TxM zoo returns matrix
-# TODO: Determine whether these are right. Self correlations aren't 1
+# This doesn't subtract the mean (based on the literature)
 cor.empirical <- function(h)
 {
   # Normalize returns
@@ -128,7 +128,8 @@ cor.empirical <- function(h)
 # Returns hist with eigenvalues attached
 mp.density.hist <- function(h, breaks=NULL, cutoff=0.01)
 {
-  e <- cor.empirical(h)
+  #e <- cor.empirical(h)
+  e <- cov2cor(cov.sample(h))
 
   # Calculate eigenvalues
   lambda <- eigen(e, symmetric=TRUE, only.values=FALSE)
@@ -156,7 +157,8 @@ mp.density.hist <- function(h, breaks=NULL, cutoff=0.01)
 
 mp.density.kernel <- function(h, adjust=0.2, kernel='e', ...)
 {
-  e <- cor.empirical(h)
+  #e <- cor.empirical(h)
+  e <- cov2cor(cov.sample(h))
 
   # Calculate eigenvalues
   lambda <- eigen(e, symmetric=TRUE, only.values=FALSE)
@@ -301,6 +303,11 @@ mp.fit.kernel <- function(hist)
 {
   really.big <- 10000000000000
   log.level <- logLevel()
+  zeros <- which(hist$y == 0)
+  wholes <- which(hist$y > 0)
+  after <- head(zeros[zeros > wholes[1]],1)
+  l.plus <- hist$x[after]
+
   fn <- function(ps)
   {
     Q <- ps[1]
@@ -310,14 +317,16 @@ mp.fit.kernel <- function(hist)
       if (log.level > 1) { cat("Kicking out Q<0:",Q,"sigma:",sigma,"\n") }
       return(really.big)
     }
-    # Empirically, sigmas below 0.3 are unrealistic
-    if (sigma <= 0.3)
+    # Empirically, sigmas below 0.2 are unrealistic
+    if (sigma <= 0.2)
     {
-      if (log.level > 1) { cat("Kicking out sigma<0.6:",Q,"sigma:",sigma,"\n") }
+      if (log.level > 1) { cat("Kicking out sigma<0.2:",Q,"sigma:",sigma,"\n") }
       return(really.big)
     }
 
-    l.plus <- mp.eigen.max(Q,sigma)
+    # This isn't the right value to use since it varies with the testing
+    # distribution
+    #l.plus <- mp.eigen.max(Q,sigma)
     rhos <- mp.rho(Q,sigma, hist$x)
 
     # Just use some very large number to prevent it from being used as optimal
@@ -328,7 +337,7 @@ mp.fit.kernel <- function(hist)
       return(really.big)
     }
 
-    if (log.level > 1) { cat("Using Q:",Q,"sigma:",sigma,"l+:",l.plus,"\n") }
+    if (log.level > 1) { cat("Tryng Q:",Q,"sigma:",sigma,"l+:",l.plus,"\n") }
 
     # Scale densities so that the max values of each are about the same.
     # This is a bit of hand-waving to get the best fit
@@ -337,10 +346,14 @@ mp.fit.kernel <- function(hist)
     if (log.level > 5) { cat("rhos:",rhos,"\n") }
     if (log.level > 2) { cat("scale:",scale,"\n") }
 
+    # Shift the densities to get a better fit
+    whole.idx <- head(rhos[rhos > 0], 1)
+    hist$y <- c(rep(0,whole.idx-1), tail(hist$y, length(hist$y)-whole.idx+2))
+
     # Normalize based on amount of density below MP upper limit
     # This is basically dividing the distance by the area under the curve, which
     # gives a bias towards larger areas (is this a good assumption?)
-    norm.factor <- sum(hist$y[hist$x <= l.plus]) * 0.1
+    norm.factor <- sum(rhos[hist$x <= l.plus])
     dy <- (rhos - (hist$y * scale)) / norm.factor
 
     # Just calculate the distances of densities less than the MP upper limit

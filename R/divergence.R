@@ -27,7 +27,7 @@ divergence <- function(h, count, window=NULL, filter=getCorFilter.RMT())
   theory <- divergenceLimit.kl(ncol(h), window)
   #cat("Theoretical divergence is",theory,"\n")
 
-  return(c(mean=mean(ds), sd=sd(ds, na.rm=TRUE), limit=theory))
+  return(c(mean=mean(ds, na.rm=TRUE), sd=sd(ds, na.rm=TRUE), limit=theory))
 }
 
 # Measuring information compares sample correlation matrix with filtered
