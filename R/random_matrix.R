@@ -96,6 +96,7 @@ filter.RMT <- function(h, hint, ..., type='kernel')
   }
   #e.clean <- clean.bouchaud(t(h), mp.hist$values, lambda.plus)
 
+  if (log.level > 2) readline()
   if (log.level > 1) { cat("Cleaning correlation matrix\n") }
   #denoise(e.clean, mp.hist$vectors, t(h))
   denoise(mp.hist, lambda.plus, h)
@@ -167,6 +168,8 @@ mp.density.kernel <- function(h, adjust=0.2, kernel='e', ...)
 }
 
 # Calculate and plot the theoretical density distribution
+# e.values - The eigenvalues to plot the density against. This can really be any
+#   point on the xaxis.
 mp.theory <- function(Q, sigma, e.values=NULL, steps=200)
 {
   # Plot a range of values
@@ -209,7 +212,9 @@ mp.lambdas <- function(Q,sigma, steps)
   evs
 }
 
-# This provides the density of the eigenvalues
+# This provides the theoretical density for a set of eigenvalues. These are
+# really just points along the x axis for which the eigenvalue density is
+# desired.
 # e.values can be a vector of eigen values or a single eigen value
 mp.rho <- function(Q,sigma, e.values)
 {
@@ -305,8 +310,8 @@ mp.fit.kernel <- function(hist)
       if (log.level > 1) { cat("Kicking out Q<0:",Q,"sigma:",sigma,"\n") }
       return(really.big)
     }
-    # Empirically, sigmas below 0.6 are unrealistic
-    if (sigma <= 0.6)
+    # Empirically, sigmas below 0.3 are unrealistic
+    if (sigma <= 0.3)
     {
       if (log.level > 1) { cat("Kicking out sigma<0.6:",Q,"sigma:",sigma,"\n") }
       return(really.big)
@@ -323,24 +328,30 @@ mp.fit.kernel <- function(hist)
       return(really.big)
     }
 
-    # Normalize based on amount of density below MP upper limit
-    norm.factor <- sum(hist$y[hist$x <= l.plus]) * 0.1
     if (log.level > 1) { cat("Using Q:",Q,"sigma:",sigma,"l+:",l.plus,"\n") }
 
-    # Scale distance to be inline with calculated densities and histogram
+    # Scale densities so that the max values of each are about the same.
     # This is a bit of hand-waving to get the best fit
     #scale <- max(rhos) / max(hist$density) + 1
     scale <- max(rhos) / max(hist$y) + 0.25
     if (log.level > 5) { cat("rhos:",rhos,"\n") }
     if (log.level > 2) { cat("scale:",scale,"\n") }
 
+    # Normalize based on amount of density below MP upper limit
+    # This is basically dividing the distance by the area under the curve, which
+    # gives a bias towards larger areas (is this a good assumption?)
+    norm.factor <- sum(hist$y[hist$x <= l.plus]) * 0.1
     dy <- (rhos - (hist$y * scale)) / norm.factor
+
+    # Just calculate the distances of densities less than the MP upper limit
+    #dy <- rhos[hist$x <= l.plus] - hist$y[hist$x <= l.plus] * scale
     dist <- as.numeric(dy %*% dy)
     if (log.level > 5) { cat("dy:",dy,"\n\n") }
     if (log.level > 2) { cat("dist:",dist,"\n\n") }
 
     dist
   }
+  if (log.level > 9) debug(fn)
   fn
 }
 
