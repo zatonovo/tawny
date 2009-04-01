@@ -337,7 +337,7 @@ mp.fit.kernel <- function(hist)
       return(really.big)
     }
 
-    if (log.level > 1) { cat("Tryng Q:",Q,"sigma:",sigma,"l+:",l.plus,"\n") }
+    if (log.level > 1) { cat("Trying Q:",Q,"sigma:",sigma,"l+:",l.plus,"\n") }
 
     # Scale densities so that the max values of each are about the same.
     # This is a bit of hand-waving to get the best fit
