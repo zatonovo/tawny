@@ -157,15 +157,15 @@ mp.density.hist <- function(h, breaks=NULL, cutoff=0.01)
 
 mp.density.kernel <- function(h, adjust=0.2, kernel='e', ...)
 {
-  #e <- cor.empirical(h)
-  e <- cov2cor(cov.sample(h))
+  e <- cor.empirical(h)
+  #e <- cov2cor(cov.sample(h))
 
   # Calculate eigenvalues
   lambda <- eigen(e, symmetric=TRUE, only.values=FALSE)
   ds <- density(lambda$values, adjust=adjust, kernel=kernel, ...)
   ds$values <- lambda$values
   ds$vectors <- lambda$vectors
-  plot(ds, xlim=c(0,6))
+  plot(ds, xlim=c(0,6), main='Eigenvalue Distribution')
   return(ds)
 }
 
@@ -183,7 +183,8 @@ mp.theory <- function(Q, sigma, e.values=NULL, steps=200)
     l.min <- mp.eigen.min(Q,sigma)
     l.max <- mp.eigen.max(Q,sigma)
     xs <- seq(round(l.min-1), round(l.max+1), (l.max-l.min)/steps)
-    plot(xs,rho, xlim=c(0,6), type='l')
+    main <- paste('Marcenko-Pastur Distribution for Q',Q,'and sigma',sigma)
+    plot(xs,rho, xlim=c(0,6), type='l', main=main)
   }
   rho
 }
@@ -348,11 +349,11 @@ mp.fit.kernel <- function(hist)
 
     # Shift the densities to get a better fit
     whole.idx <- head(rhos[rhos > 0], 1)
-    hist$y <- c(rep(0,whole.idx-1), tail(hist$y, length(hist$y)-whole.idx+2))
+    hist$y <- c(rep(0,whole.idx-1), tail(hist$y, length(hist$y)-whole.idx+1))
 
     # Normalize based on amount of density below MP upper limit
     # This is basically dividing the distance by the area under the curve, which
-    # gives a bias towards larger areas (is this a good assumption?)
+    # gives a bias towards larger areas
     norm.factor <- sum(rhos[hist$x <= l.plus])
     dy <- (rhos - (hist$y * scale)) / norm.factor
 
