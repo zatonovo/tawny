@@ -13,7 +13,7 @@
 \usage{
 portfolioReturns(h, weights)
 
-portfolioPerformance(p, window, rf.rate = 0.01)
+portfolioPerformance(p, rf.rate = 0.01)
 
 plotPerformance(h, weights, window = NULL, rf.rate = 0.01, new.plot = TRUE, y.min = -0.25, y.max = 0.25, bg = NULL, name = "", color = "red", colors = c(), ...)
 

@@ -76,9 +76,13 @@ correlation matrix using Random Matrix Theory. This is only of interest to
 those looking to delve deeper into the mechanics of RMT and/or creating custom
 behavior from these building blocks.
 
-In the future it is possible that the portfolio will be kept in a zoo
-representation for these internal functions such that all dimensions will be
-transposed to T x M.
+When using the kernel density estimate (the default), it is important to set
+n to a reasonable number. In the implementation, the kernel estimator's default
+is used which may not be optimum. For shorter windows it is suitable but larger
+windows (e.g. greater than 500 days) requires manually setting n. A value that
+seems to work well is 4096. See \seealso{density} for more information. In the
+future, this may be changed to include a heuristic to determine a good value
+for n.
 }
 \value{
 A cleaned version of the eigenvalues is returned by clean.bouchaud. The 

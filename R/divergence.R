@@ -41,7 +41,8 @@ divergence.kl <- function(sigma.1, sigma.2)
   0.5 * (term.1 + term.2 - nrow(sigma.1))
 }
 
-# The expected value of the divergence for random matrices
+# The expected value of the divergence for random matrices (sample versus 
+# true correlation matrix)
 divergenceLimit.kl <- function(m, t=NULL)
 {
   if (is.null(t))

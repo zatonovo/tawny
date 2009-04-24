@@ -269,7 +269,7 @@ plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
 
   log.level <- logLevel()
   ts.rets <- portfolioReturns(h, weights)
-  stats <- portfolioPerformance(ts.rets, window, rf.rate)
+  stats <- portfolioPerformance(ts.rets, rf.rate)
 
   # Plot this output
   if (log.level > 3)
@@ -347,24 +347,26 @@ portfolioReturns <- function(h, weights)
   return(ts.rets)
 }
 
-portfolioPerformance <- function(p, window, rf.rate=0.01)
+# p - portfolio returns
+portfolioPerformance <- function(p, rf.rate=0.01)
 {
   #require(PerformanceAnalytics, quietly=TRUE)
   #ts.perf <- cumprod(1+p) - 1
   #xaxis <- as.Date(index(ts.perf))
   #xaxis <- as.Date(index(p))
+  days <- length(p)
 
   stats <- list()
   stats$daily.returns <- p
   stats$cum.returns <- cumprod(1 + stats$daily.returns) - 1
   stats$period.stdev <- as.numeric(sd(p, na.rm=TRUE))
-  stats$annual.stdev <- as.numeric(sd(p, na.rm=TRUE) * (252/window)^0.5)
+  stats$annual.stdev <- as.numeric(sd(p, na.rm=TRUE) * 252^0.5)
   #stats$drawdown <- maxDrawdown(p)
   stats$avg.return <- mean(stats$daily.returns)
   stats$period.return <- as.numeric(last(stats$cum.returns))
-  stats$annual.return <- (1 + stats$period.return)^(252/window) - 1
-  #stats$sharpe.ratio <- (stats$annual.return - rf.rate) / stats$annual.stdev
-  prf <- (1 + rf.rate)^(window/252) - 1
+  stats$annual.return <- (1 + stats$period.return)^(252/days) - 1
+  stats$sharpe.ratio <- (stats$annual.return - rf.rate) / stats$annual.stdev
+  #prf <- (1 + rf.rate)^(window/252) - 1
   #stats$sharpe.ratio <- SharpeRatio.annualized(stats$daily.returns, rf=prf, scale=252)
 
   return(stats)
