@@ -7,7 +7,10 @@
 # replace - whether to use replacement in bootstrapping
 # divergence(sp500.subset, 25, filter=getCorFilter.RMT())
 # divergence(sp500.subset, 25, filter=getCorFilter.Shrinkage())
-divergence <- function(h, count, window=NULL, filter=getCorFilter.RMT())
+# Can measure information (the default) or stability. Measuring stability will
+# resample twice to get two forms of the correlation matrix.
+divergence <- function(h, count, window=NULL, filter=getCorFilter.RMT(), 
+  measure='information')
 {
   if (is.null(window)) { window <- anylength(h) }
   # Convert to matrix to allow duplicates
@@ -19,7 +22,7 @@ divergence <- function(h, count, window=NULL, filter=getCorFilter.RMT())
     c.sample <- cov2cor(cov.sample(h.window))
     c.model <- filter(h.window)
 
-    divergence <- divergence.kl(c.sample, c.model)
+    divergence <- divergence.kl(c.sample, c.model, measure)
     return(divergence)
   }
   ds <- sapply(1:count, div, h)
