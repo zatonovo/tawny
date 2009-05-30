@@ -66,7 +66,7 @@ Maintainer: Brian Lee Yung Rowe <r@nurometic.com>
 \references{
 Gatheral, Jim. "Random Matrix Theory and Covariance Estimation." 3 Oct. 2008.
 New York. 7 Oct. 2008
-<http://www.math.nyu.edu/fellows_fin_math/gatheral/RandomMatrixCovariance2008.pdf>.
+<http://www.math.nyu.edu/fellows\_fin\_math/gatheral/RandomMatrixCovariance2008.pdf>.
 
 Potters, Marc; Bouchaud, Jean-Philippe; Laloux, Laurent.
 "Financial Applications of Random Matrix Theory: Old Laces and New Pieces."
