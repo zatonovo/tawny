@@ -78,3 +78,40 @@ plotDivergenceLimit.kl <- function(m, t.range, ..., overlay=FALSE)
   invisible(limit)
 }
 
+# Limit for stability (distance between two sample correlation matrices)
+stabilityLimit.kl <- function(m, t=NULL)
+{ 
+  if (is.null(t))
+  {
+    t <- m[2]
+    m <- m[1]
+  } 
+
+  0.5 * m * (m+1) / (t - m - 1)
+}
+
+# Determine the stability of the filter.
+stability <- function(h, count, window=NULL, filter=getCorFilter.RMT())
+{
+  if (is.null(window)) { window <- anylength(h) }
+  # Convert to matrix to allow duplicates
+  h <- matrix(h, ncol=ncol(h))
+
+  div <- function(junk, h.full)
+  {
+    h.window.1 <- h.full[sample(index(h.full), window, replace=TRUE), ]
+    c.sample.1 <- cov2cor(cov.sample(h.window.1))
+    h.window.2 <- h.full[sample(index(h.full), window, replace=TRUE), ]
+    c.sample.2 <- cov2cor(cov.sample(h.window.2))
+
+    divergence <- divergence.kl(c.sample.1, c.sample.2)
+    return(divergence)
+  }
+  ds <- sapply(1:count, div, h)
+
+  theory <- stabilityLimit.kl(ncol(h), window)
+  #cat("Theoretical divergence is",theory,"\n")
+
+  return(c(mean=mean(ds, na.rm=TRUE), sd=sd(ds, na.rm=TRUE), limit=theory))
+}
+

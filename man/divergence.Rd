@@ -3,7 +3,9 @@
 \alias{divergence.kl}
 \alias{divergenceLimit.kl}
 \alias{plotDivergenceLimit.kl}
-\title{ Measure the divergence between two correlation matrices }
+\alias{stability}
+\alias{stabilityLimit.kl}
+\title{ Measure the divergence and stability between two correlation matrices }
 \description{
   The Kullback-Leibler distance function can be used to measure the divergence
   between two correlation matrices. Although originally designed for probability
@@ -15,6 +17,8 @@
 divergence(h, count, window = NULL, filter = getCorFilter.RMT())
 divergence.kl(sigma.1, sigma.2)
 divergenceLimit.kl(m, t = NULL)
+stability(h, count, window = NULL, filter = getCorFilter.RMT())
+stabilityLimit.kl(m, t = NULL)
 plotDivergenceLimit.kl(m, t.range, ..., overlay = FALSE)
 }
 \arguments{
