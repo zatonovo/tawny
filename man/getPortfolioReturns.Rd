@@ -21,7 +21,7 @@ getPortfolioReturns(symbols, obs = NULL, start = NULL, end = Sys.Date(), fun = f
 ensure(serie, src = 'FRED', reload = FALSE, ...)
 }
 \arguments{
-  \item{ticker}{ The ticker of the index. For best mileage, use Yahoo! compatible tickers (including the ^ prefix) }
+  \item{ticker}{ The ticker of the index. For best mileage, use Yahoo! compatible tickers (including the caret prefix). }
   \item{hint}{ A hint that specifies the number of assets in the index. If omitted, a default will be used based on pre-configured data for common indexes. }
   \item{src}{ The data vendor to use. Defaults to yahoo but could work with google }
   \item{symbols}{ A vector (or scalar) of tickers to download }

@@ -80,7 +80,7 @@ When using the kernel density estimate (the default), it is important to set
 n to a reasonable number. In the implementation, the kernel estimator's default
 is used which may not be optimum. For shorter windows it is suitable but larger
 windows (e.g. greater than 500 days) requires manually setting n. A value that
-seems to work well is 4096. See \seealso{density} for more information. In the
+seems to work well is 4096. See \seealso{\code{\link{density}}} for more information. In the
 future, this may be changed to include a heuristic to determine a good value
 for n.
 }
