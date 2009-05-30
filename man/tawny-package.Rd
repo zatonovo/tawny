@@ -61,7 +61,7 @@ functions are primarily exposed as shrinkage.*.
 \author{
 Brian Lee Yung Rowe
 
-Maintainer: Brian Lee Yung Rowe <tawny-help@muxspace.com>
+Maintainer: Brian Lee Yung Rowe <r@nurometic.com>
 }
 \references{
 Gatheral, Jim. "Random Matrix Theory and Covariance Estimation." 3 Oct. 2008.
