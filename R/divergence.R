@@ -10,6 +10,7 @@
 # Can measure information (the default) or stability. Measuring stability will
 # resample twice to get two forms of the correlation matrix.
 divergence <- function(h, count, window=NULL, filter=getCorFilter.RMT(), 
+  measure='information')
 {
   fn <- paste('divergence', measure, sep='.')
   do.call(fn, list(h, count, window, filter))
