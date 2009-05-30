@@ -28,6 +28,7 @@ plotDivergenceLimit.kl(m, t.range, ..., overlay = FALSE)
   \item{count}{ The number of bootstrap observations to create }
   \item{window}{ The number of samples to include in each observation. Defaults to the anylength of h. }
   \item{filter}{ The correlation filter to measure }
+  \item{measure}{ The type of divergence to calculate. Possible choices are information (default) or stability. }
   \item{sigma.1}{ The sample correlation matrix }
   \item{sigma.2}{ The model correlation matrix (aka the filtered matrix) }
   \item{m}{ The number of assets }
