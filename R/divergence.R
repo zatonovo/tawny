@@ -10,7 +10,12 @@
 # Can measure information (the default) or stability. Measuring stability will
 # resample twice to get two forms of the correlation matrix.
 divergence <- function(h, count, window=NULL, filter=getCorFilter.RMT(), 
-  measure='information')
+{
+  fn <- paste('divergence', measure, sep='.')
+  do.call(fn, list(h, count, window, filter))
+}
+
+divergence.information <- function(h, count, window, filter)
 {
   if (is.null(window)) { window <- anylength(h) }
   # Convert to matrix to allow duplicates
@@ -22,7 +27,7 @@ divergence <- function(h, count, window=NULL, filter=getCorFilter.RMT(),
     c.sample <- cov2cor(cov.sample(h.window))
     c.model <- filter(h.window)
 
-    divergence <- divergence.kl(c.sample, c.model, measure)
+    divergence <- divergence.kl(c.sample, c.model)
     return(divergence)
   }
   ds <- sapply(1:count, div, h)
@@ -91,7 +96,7 @@ stabilityLimit.kl <- function(m, t=NULL)
 }
 
 # Determine the stability of the filter.
-stability <- function(h, count, window=NULL, filter=getCorFilter.RMT())
+divergence.stability <- function(h, count, window, filter)
 {
   if (is.null(window)) { window <- anylength(h) }
   # Convert to matrix to allow duplicates

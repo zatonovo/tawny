@@ -1,10 +1,11 @@
 \name{divergence}
 \alias{divergence}
+\alias{divergence.information}
+\alias{divergence.stability}
 \alias{divergence.kl}
 \alias{divergenceLimit.kl}
-\alias{plotDivergenceLimit.kl}
-\alias{stability}
 \alias{stabilityLimit.kl}
+\alias{plotDivergenceLimit.kl}
 \title{ Measure the divergence and stability between two correlation matrices }
 \description{
   The Kullback-Leibler distance function can be used to measure the divergence
@@ -14,10 +15,11 @@
   the effectiveness of a particular filtering strategy for correlation matrices.
 }
 \usage{
-divergence(h, count, window = NULL, filter = getCorFilter.RMT())
+divergence(h, count, window = NULL, filter = getCorFilter.RMT(), measure = 'information')
+divergence.information(h, count, window, filter)
+divergence.stability(h, count, window, filter)
 divergence.kl(sigma.1, sigma.2)
 divergenceLimit.kl(m, t = NULL)
-stability(h, count, window = NULL, filter = getCorFilter.RMT())
 stabilityLimit.kl(m, t = NULL)
 plotDivergenceLimit.kl(m, t.range, ..., overlay = FALSE)
 }
