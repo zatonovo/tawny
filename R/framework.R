@@ -35,7 +35,7 @@ library(quantmod)
 # Else assume correlation matrix of returns
 classify <- function(h)
 {
-  if (is.nulL(dim(h)) stop("h must have a dim attribute")
+  if (is.null(dim(h))) stop("h must have a dim attribute")
 
   tawny.types <- c('returns','covariance','correlation')
   if (any(tawny.types) %in% class(h)) invisible(h)
