@@ -59,6 +59,7 @@ getCorFilter.raw <- function()
 filter.RMT <- function(h, hint, ..., type='kernel')
 {
   log.level <- logLevel()
+  classify(h)
 
   if (log.level > 1) { cat("Calculating eigenvalue distribution\n") }
   mp.hist <- do.call(paste('mp.density.',type,sep=''), list(h, ...))
@@ -113,7 +114,8 @@ cor.empirical <- function(h)
   # E = H H'
   t <- nrow(ns)
   e <- t(ns) %*% ns / t
-
+  class(e) <- c(class(e), 'correlation')
+  e
 }
 
 ##------------------------ MARCENKO-PASTUR FUNCTIONS ------------------------##
@@ -128,8 +130,8 @@ cor.empirical <- function(h)
 # Returns hist with eigenvalues attached
 mp.density.hist <- function(h, breaks=NULL, cutoff=0.01)
 {
-  #e <- cor.empirical(h)
-  e <- cov2cor(cov.sample(h))
+  e <- cor.empirical(h)
+  #e <- cov2cor(cov.sample(h))
 
   # Calculate eigenvalues
   lambda <- eigen(e, symmetric=TRUE, only.values=FALSE)
@@ -155,11 +157,29 @@ mp.density.hist <- function(h, breaks=NULL, cutoff=0.01)
   hist
 }
 
-mp.density.kernel <- function(h, adjust=0.2, kernel='e', ...)
+mp.density.kernel <- function(x) UseMethod('mp.density.kernel', x)
+
+# Just assume it's a returns matrix (should be backwards compatible)
+mp.density.kernel.default <- function(x, ...)
+{
+  mp.density.kernel.returns(x, ...)
+}
+
+# Calculate the density using a returns series
+mp.density.kernel.returns <- function(h, ...)
 {
   e <- cor.empirical(h)
-  #e <- cov2cor(cov.sample(h))
+  mp.density.kernel.correlation(h, ...)
+}
 
+mp.density.kernel.covariance <- function(h, ...)
+{
+  mp.density.kernel.correlation(cov2cor(h), ...)
+}
+
+# Calculate the density using a correlation matrix
+mp.density.kernel.correlation <- function(h, adjust=0.2, kernel='e', ...)
+{
   # Calculate eigenvalues
   lambda <- eigen(e, symmetric=TRUE, only.values=FALSE)
   ds <- density(lambda$values, adjust=adjust, kernel=kernel, ...)
@@ -402,7 +422,7 @@ denoise <- function(hist, lambda.plus=1.6, h=NULL)
   diags <- diag(c.clean) %o% rep(1, nrow(c.clean))
   c.clean <- c.clean / sqrt(diags * t(diags))
 
-  if (! is.null(h))
+  if (! is.null(h) & 'returns' %in% class(h))
   {
     rownames(c.clean) <- anynames(h)
     colnames(c.clean) <- anynames(h)

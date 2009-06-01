@@ -29,6 +29,23 @@ library(quantmod)
 # ef <- compare.EqualWeighted(h, 350, y.min=-0.4)
 # mf <- compare.Market('^GSPC',400,350, y.min=-0.4)
 
+# Assign a class to the given object
+# If h is not square, then assume it is returns
+# If h has values > 1, assume covariance matrix of returns
+# Else assume correlation matrix of returns
+classify <- function(h)
+{
+  if (is.nulL(dim(h)) stop("h must have a dim attribute")
+
+  tawny.types <- c('returns','covariance','correlation')
+  if (any(tawny.types) %in% class(h)) invisible(h)
+
+  if (ncol(h) != nrow(h)) class(h) <- c(class(h), 'returns')
+  else if (max(h) > 1) class(h) <- c(class(h), 'covariance')
+  else class(h) <- c(class(h), 'correlation')
+  invisible(h)
+}
+
 
 
 ##---------------------------- PUBLIC FUNCTIONS -----------------------------##
@@ -194,7 +211,9 @@ getPortfolioReturns <- function(symbols, obs=NULL, start=NULL, end=Sys.Date(),
   if (logLevel() > 0) cat("Returning rows [",idx.inf,",",idx.sup,"]\n")
   
   cat("Loaded portfolio with",ncol(p),"assets\n")
-  p[idx.inf:idx.sup, ]
+  out <- p[idx.inf:idx.sup, ]
+  class(out) <- c(class(out), 'returns')
+  out
 }
 
 
@@ -209,6 +228,9 @@ getPortfolioReturns <- function(symbols, obs=NULL, start=NULL, end=Sys.Date(),
 #  weights <- optimizePortfolio(h, 100, c.gen)
 ## End(Not run)
 # NOTE: For zoo compatibility, need to use a t x m matrix for h
+# Attempls to dispatch based on characteristics of h.
+
+# Optimizes a returns series over a window.
 optimizePortfolio <- function(h, window, cor.gen=getCorFilter.RMT(), ...)
 {
   if (! 'zoo' %in% class(h))

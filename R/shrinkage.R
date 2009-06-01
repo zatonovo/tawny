@@ -9,11 +9,38 @@
 #   it will be computed from the returns matrix
 # Example
 #   S.hat <- cov.shrink(ys)
-cov.shrink <- function(returns, sample=NULL, prior.fun=cov.prior.cc, ...)
+cov.shrink <- function(x, ...) UseMethod('cov.shrink', x)
+cov.shrink.default <- function(x, ...)
+{
+  cov.shrink.returns(x, ...)
+}
+
+cov.shrink.correlation <- function(sample, prior.fun=cov.prior.cc, ...)
+{
+  stop("Shrinkage on correlation matrix is not supported.")
+}
+
+cov.shrink.covariance <- function(sample, prior.fun=cov.prior.cc, ...)
 {
   #if (logLevel() > 0) cat("Shrinking covariance for",last(index(returns)),"\n")
-  if (is.null(sample)) { S <- cov.sample(returns) }
-  else { S <- sample }
+  S <- sample
+
+  T <- nrow(returns)
+  #F <- cov.prior.cc(S)
+  F <- prior.fun(S, ...)
+  k <- shrinkage.intensity(returns, F, S)
+  d <- max(0, min(k/T, 1))
+
+  if (logLevel() > 0) cat("Got intensity k =",k,"and coefficient d =",d,"\n")
+
+  S.hat <- d * F + (1 - d) * S
+  S.hat
+}
+
+cov.shrink.returns <- function(returns, prior.fun=cov.prior.cc, ...)
+{
+  #if (logLevel() > 0) cat("Shrinking covariance for",last(index(returns)),"\n")
+  S <- cov.sample(returns)
 
   T <- nrow(returns)
   #F <- cov.prior.cc(S)
@@ -47,6 +74,7 @@ cov.sample <- function(returns)
   X <- t(returns)
   ones <- rep(1,T)
   S <- (1/T) * X %*% (diag(T) - 1/T * (ones %o% ones) ) %*% t(X)
+  class(S) <- c(class(S), 'covariance')
   S
 }
 
