@@ -33,17 +33,17 @@ library(quantmod)
 # If h is not square, then assume it is returns
 # If h has values > 1, assume covariance matrix of returns
 # Else assume correlation matrix of returns
-classify <- function(h)
+classify <- function(x)
 {
-  if (is.null(dim(h))) stop("h must have a dim attribute")
+  if (is.null(dim(x))) stop("h must have a dim attribute")
 
   tawny.types <- c('returns','covariance','correlation')
-  if (any(tawny.types) %in% class(h)) invisible(h)
+  if (any(tawny.types) %in% class(x)) invisible(x)
 
-  if (ncol(h) != nrow(h)) class(h) <- c(class(h), 'returns')
-  else if (max(h) > 1) class(h) <- c(class(h), 'covariance')
-  else class(h) <- c(class(h), 'correlation')
-  invisible(h)
+  if (ncol(x) != nrow(x)) class(x) <- c(class(x), 'returns')
+  else if (max(x) > 1) class(x) <- c(class(x), 'covariance')
+  else class(x) <- c(class(x), 'correlation')
+  invisible(x)
 }
 
 

@@ -3,6 +3,10 @@
 \alias{getRandomMatrix}
 \alias{mp.density.hist}
 \alias{mp.density.kernel}
+\alias{mp.density.kernel.default}
+\alias{mp.density.kernel.returns}
+\alias{mp.density.kernel.covariance}
+\alias{mp.density.kernel.correlation}
 \alias{mp.fit.hist}
 \alias{mp.fit.kernel}
 \alias{mp.eigen.max}
@@ -28,7 +32,12 @@ getRandomMatrix(m, t)
 mp.theory(Q, sigma, e.values = NULL, steps = 200)
 
 mp.density.hist(h, breaks = NULL, cutoff = 0.01)
-mp.density.kernel(h, adjust = 0.2, kernel = 'e', ...)
+
+mp.density.kernel(h, ...)
+\method{mp.density.kernel}{default}(h, ...)
+\method{mp.density.kernel}{returns}(h, ...)
+\method{mp.density.kernel}{covariance}(h, ...)
+\method{mp.density.kernel}{correlation}(h, adjust = 0.2, kernel = 'e', ...)
 
 # Fit the appropriate MP curve to the data. This will estimate Q and sigma.
 mp.fit.hist(hist)
@@ -53,7 +62,7 @@ denoise(hist, lambda.plus = 1.6, h = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{h}{ A TxM returns matrix }
+  \item{h}{ A generic tawny object that represents either a returns stream, covariance matrix or correlation matrix. }
   \item{hint}{ A hint to the optimizer for fitting a theoretical curve to the empirical distribution }
   \item{type}{ The type of density calculation to use, either kernel or hist }
   \item{m}{ Scalar representing the number of assets in a portfolio }

@@ -1,5 +1,9 @@
 \name{cov.shrink}
 \alias{cov.shrink}
+\alias{cov.shrink.default}
+\alias{cov.shrink.returns}
+\alias{cov.shrink.covariance}
+\alias{cov.shrink.correlation}
 \alias{cov.sample}
 \alias{cov.prior.cc}
 \alias{cov.prior.identity}
@@ -17,7 +21,11 @@
   corresponding correlation matrix).
 }
 \usage{
-cov.shrink(returns, sample = NULL, prior.fun = cov.prior.cc, ...)
+cov.shrink(h, ...)
+\method{cov.shrink}{default}(h, ...)
+\method{cov.shrink}{returns}(h, prior.fun = cov.prior.cc, ...)
+\method{cov.shrink}{covariance}(h, T, constant.fun, prior.fun = cov.prior.cc, ...)
+\method{cov.shrink}{correlation}(h, ...)
 
 cov.sample(returns)
 
@@ -39,8 +47,11 @@ shrinkage.c(prior, sample)
   \item{sample}{ The sample covariance matrix (synonomous to S) }
   \item{prior}{ The shrinkage target covariance matrix (synonomous to F) }
   \item{prior.fun}{ Generates the prior/model covariance matrix }
+  \item{constant.fun}{Use this function to calculate the shrinkage constant}
   \item{S}{ The sample covariance matrix }
+  \item{T}{ Length of returns series used in scaling of shrinkage coefficient}
   \item{pi.est}{ The estimate returned from shrinkage.p }
+  \item{h}{ A generic tawny object representing either a returns, covariance, or correlation matrix}
   \item{\dots}{ Additional parameters to pass to prior.fun }
 }
 \details{

@@ -4,6 +4,7 @@
 \alias{getCorFilter.Shrinkage}
 \alias{getCorFilter.raw}
 \alias{p.optimize}
+\alias{classify}
 \title{ Optimize a portfolio using the specified correlation filter }
 \description{
   Performs basic minimum variance optimization on the given portfolio over the 
@@ -30,6 +31,8 @@ getCorFilter.RMT(hint = c(4,1), ...)
 getCorFilter.raw()
 
 p.optimize(h, c.denoised)
+
+classify(x)
 }
 \arguments{
   \item{h}{ A zoo object representing a portfolio with dimensions T x M }
@@ -39,6 +42,7 @@ p.optimize(h, c.denoised)
   \item{hint}{ A hint for the correct value of Q and sigma for random matrix theory }
   \item{c.denoised}{ A cleaned correlation matrix }
   \item{\dots}{ Additional parameters to pass to the cor.gen function }
+  \item{x}{ An object representing either a returns covariance or correlation matrix}
 }
 \details{
   This is the primary entry point to using the tawny package. This function 

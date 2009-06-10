@@ -157,19 +157,19 @@ mp.density.hist <- function(h, breaks=NULL, cutoff=0.01)
   hist
 }
 
-mp.density.kernel <- function(x) UseMethod('mp.density.kernel', x)
+mp.density.kernel <- function(h, ...) UseMethod('mp.density.kernel')
 
 # Just assume it's a returns matrix (should be backwards compatible)
-mp.density.kernel.default <- function(x, ...)
+mp.density.kernel.default <- function(h, ...)
 {
-  mp.density.kernel.returns(x, ...)
+  mp.density.kernel.returns(h, ...)
 }
 
 # Calculate the density using a returns series
 mp.density.kernel.returns <- function(h, ...)
 {
   e <- cor.empirical(h)
-  mp.density.kernel.correlation(h, ...)
+  mp.density.kernel.correlation(e, ...)
 }
 
 mp.density.kernel.covariance <- function(h, ...)
@@ -178,10 +178,11 @@ mp.density.kernel.covariance <- function(h, ...)
 }
 
 # Calculate the density using a correlation matrix
+# h - correlation matrix of the returns series
 mp.density.kernel.correlation <- function(h, adjust=0.2, kernel='e', ...)
 {
   # Calculate eigenvalues
-  lambda <- eigen(e, symmetric=TRUE, only.values=FALSE)
+  lambda <- eigen(h, symmetric=TRUE, only.values=FALSE)
   ds <- density(lambda$values, adjust=adjust, kernel=kernel, ...)
   ds$values <- lambda$values
   ds$vectors <- lambda$vectors

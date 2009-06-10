@@ -9,26 +9,41 @@
 #   it will be computed from the returns matrix
 # Example
 #   S.hat <- cov.shrink(ys)
-cov.shrink <- function(x, ...) UseMethod('cov.shrink', x)
-cov.shrink.default <- function(x, ...)
+cov.shrink <- function(h, ...) UseMethod('cov.shrink')
+cov.shrink.default <- function(h, ...)
 {
-  cov.shrink.returns(x, ...)
+  cov.shrink.returns(h, ...)
 }
 
-cov.shrink.correlation <- function(sample, prior.fun=cov.prior.cc, ...)
+cov.shrink.correlation <- function(h, ...)
 {
   stop("Shrinkage on correlation matrix is not supported.")
 }
 
-cov.shrink.covariance <- function(sample, prior.fun=cov.prior.cc, ...)
+# Estimate the covariance matrix using the specified constant.fun for 
+# determining the shrinkage constant. The constant.fun is passed two 
+# parameters - the sample covariance matrix and the number of rows (T) in the 
+# original returns stream.
+cov.shrink.covariance <- function(h, T, constant.fun, prior.fun=cov.prior.cc, ...)
+{
+  S <- h
+  F <- prior.fun(S, ...)
+  d <- constant.fun(S, T)
+
+  if (logLevel() > 0) cat("Got coefficient d =",d,"\n")
+
+  S.hat <- d * F + (1 - d) * S
+  S.hat
+}
+
+cov.shrink.returns <- function(h, prior.fun=cov.prior.cc, ...)
 {
   #if (logLevel() > 0) cat("Shrinking covariance for",last(index(returns)),"\n")
-  S <- sample
+  S <- cov.sample(h)
 
-  T <- nrow(returns)
-  #F <- cov.prior.cc(S)
+  T <- nrow(h)
   F <- prior.fun(S, ...)
-  k <- shrinkage.intensity(returns, F, S)
+  k <- shrinkage.intensity(h, F, S)
   d <- max(0, min(k/T, 1))
 
   if (logLevel() > 0) cat("Got intensity k =",k,"and coefficient d =",d,"\n")
@@ -37,22 +52,6 @@ cov.shrink.covariance <- function(sample, prior.fun=cov.prior.cc, ...)
   S.hat
 }
 
-cov.shrink.returns <- function(returns, prior.fun=cov.prior.cc, ...)
-{
-  #if (logLevel() > 0) cat("Shrinking covariance for",last(index(returns)),"\n")
-  S <- cov.sample(returns)
-
-  T <- nrow(returns)
-  #F <- cov.prior.cc(S)
-  F <- prior.fun(S, ...)
-  k <- shrinkage.intensity(returns, F, S)
-  d <- max(0, min(k/T, 1))
-
-  if (logLevel() > 0) cat("Got intensity k =",k,"and coefficient d =",d,"\n")
-
-  S.hat <- d * F + (1 - d) * S
-  S.hat
-}
 
 # Return a correlation matrix generator that is compatible with the portfolio
 # optimizer
