@@ -2,7 +2,7 @@ Package: tawny
 Type: Package
 Title: Provides various portfolio optimization strategies including random matrix theory and shrinkage estimators
 Version: {version}
-Depends: R (>= 2.8.1), futile, zoo, xts, quantmod
+Depends: R (>= 2.8.0), futile, zoo, xts, quantmod
 Suggests: PerformanceAnalytics
 Date: {date}
 Author: Brian Lee Yung Rowe
