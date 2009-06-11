@@ -1,6 +1,18 @@
 # Perform shrinkage on a sample covariance towards a biased covariance
 # Author: Brian Lee Yung Rowe
 #
+
+# Return a correlation matrix generator that is compatible with the portfolio
+# optimizer
+# Example
+#   ws <- optimizePortfolio(ys, 100, getCorFilter.Shrinkage())
+#   plotPerformance(ys,ws)
+getCorFilter.Shrinkage <- function(prior.fun=cov.prior.cc, ...)
+{
+  function(h) return(cov2cor(cov.shrink(h, prior.fun=prior.fun, ...)))
+}
+
+############################### PUBLIC METHODS ##############################
 # Shrink the sample covariance matrix towards the model covariance matrix for
 # the given time window.
 # model - The covariance matrix specified by the model, e.g. single-index, 
@@ -52,16 +64,6 @@ cov.shrink.returns <- function(h, prior.fun=cov.prior.cc, ...)
   S.hat
 }
 
-
-# Return a correlation matrix generator that is compatible with the portfolio
-# optimizer
-# Example
-#   ws <- optimizePortfolio(ys, 100, getCorFilter.Shrinkage())
-#   plotPerformance(ys,ws)
-getCorFilter.Shrinkage <- function(prior.fun=cov.prior.cc, ...)
-{
-  function(h) return(cov2cor(cov.shrink(h, prior.fun=prior.fun, ...)))
-}
 
 # Calculate the sample covariance matrix from a returns matrix
 # Returns a T x N returns matrix (preferably zoo/xts)

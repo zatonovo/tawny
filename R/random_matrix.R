@@ -56,6 +56,7 @@ getCorFilter.raw <- function()
 #}
 
 # Transition in progress to TxM - filter.RMT now takes TxM xts object
+# This should be sufficiently generic to handle all types of h
 filter.RMT <- function(h, hint, ..., type='kernel')
 {
   log.level <- logLevel()
