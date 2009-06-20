@@ -1,21 +1,5 @@
-# Look at rmetrics.org
-#library('PerformanceAnalytics')
 library(zoo)
 library(quantmod)
-
-# This is the default filter
-getCorFilter.RMT <- function(hint=c(4,1), ...)
-{
-  # h is a zoo object and will be t x m
-  #function(h) { filter.RMT(t(h), breaks, hint) }
-  function(h) return(filter.RMT(h, hint=hint, ...))
-}
-
-# This acts as a control case with no cleaning
-getCorFilter.raw <- function()
-{
-  function(h) return(cor.empirical(h))
-}
 
 # Optimize a portfolio to minimize risk using RMT
 # Params

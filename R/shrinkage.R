@@ -2,16 +2,6 @@
 # Author: Brian Lee Yung Rowe
 #
 
-# Return a correlation matrix generator that is compatible with the portfolio
-# optimizer
-# Example
-#   ws <- optimizePortfolio(ys, 100, getCorFilter.Shrinkage())
-#   plotPerformance(ys,ws)
-getCorFilter.Shrinkage <- function(prior.fun=cov.prior.cc, ...)
-{
-  function(h) return(cov2cor(cov.shrink(h, prior.fun=prior.fun, ...)))
-}
-
 ############################### PUBLIC METHODS ##############################
 # Shrink the sample covariance matrix towards the model covariance matrix for
 # the given time window.

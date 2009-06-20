@@ -2,7 +2,9 @@
 \alias{optimizePortfolio}
 \alias{getCorFilter.RMT}
 \alias{getCorFilter.Shrinkage}
-\alias{getCorFilter.raw}
+\alias{getCorFilter.Raw}
+\alias{getCorFilter.Sample}
+\alias{getCorFilter.ShrinkageM}
 \alias{p.optimize}
 \alias{classify}
 \title{ Optimize a portfolio using the specified correlation filter }
@@ -26,9 +28,13 @@ optimizePortfolio(h, window, cor.gen, ...)
 
 getCorFilter.Shrinkage(prior.fun = cov.prior.cc, ...)
 
+getCorFilter.ShrinkageM(market, prior.fun = cov.prior.cc, ...)
+
 getCorFilter.RMT(hint = c(4,1), ...)
 
-getCorFilter.raw()
+getCorFilter.Raw()
+
+getCorFilter.Sample()
 
 p.optimize(h, c.denoised)
 
@@ -40,6 +46,7 @@ classify(x)
   \item{cor.gen}{ A function that takes a portfolio with window observations and generates a correlation matrix }
   \item{prior.fun}{ The function that generates the prior/model covariance matrix for shrinkage estimation }
   \item{hint}{ A hint for the correct value of Q and sigma for random matrix theory }
+  \item{market}{ The market to remove from the returns stream }
   \item{c.denoised}{ A cleaned correlation matrix }
   \item{\dots}{ Additional parameters to pass to the cor.gen function }
   \item{x}{ An object representing either a returns covariance or correlation matrix}
@@ -85,7 +92,14 @@ classify(x)
 \examples{
 data(sp500.subset)
 h <- sp500.subset
+ws <- optimizePortfolio(h, 190, getCorFilter.Sample() )
+ws <- optimizePortfolio(h, 190, getCorFilter.Raw() )
 ws <- optimizePortfolio(h, 190, getCorFilter.RMT() )
 ws <- optimizePortfolio(h, 190, getCorFilter.Shrinkage() )
+
+# This is computationally faster although the convenient approach is to pass
+# in the character symbol directly: getCorFilter.Shrinkage('^GSPC')
+m <- getPortfolioReturns('^GSPC', obs=1000, end='2009-02-27')
+ws <- optimizePortfolio(h, 190, getCorFilter.ShrinkageM(m) )
 }
 \keyword{ ts }
