@@ -54,7 +54,7 @@ getCorFilter.ShrinkageM <- function(market, prior.fun=cov.prior.cc, ...)
     if (anylength(m) != anylength(h)) stop("Inconsistent data lengths")
 
     # Calculate beta
-    beta.fn <- function(h, m) cov(h, m) / var(h)
+    beta.fn <- function(h, m) cov(h, m) / var(m)
     betas <- apply(h, 2, beta.fn, m)
 
     # Subtract beta * market from returns
