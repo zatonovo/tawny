@@ -46,7 +46,6 @@ getCorFilter.ShrinkageM <- function(market, prior.fun=cov.prior.cc, ...)
     }
     else m <- market
 
-    # TODO: Preserve date indexes in h
     if (start(m) > first(dates)) stop("Market data does not span start of h")
     if (end(m) < last(dates)) stop("Market data does not span end of h")
 

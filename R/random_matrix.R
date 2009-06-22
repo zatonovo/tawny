@@ -39,12 +39,17 @@ library(quantmod)
 #  rollapply(h, window, my.rmt, by.column=FALSE, align='right')
 #}
 
-# Transition in progress to TxM - filter.RMT now takes TxM xts object
+# filter.RMT now takes TxM xts object
 # This should be sufficiently generic to handle all types of h
 filter.RMT <- function(h, hint, ..., type='kernel')
 {
   log.level <- logLevel()
   classify(h)
+  if (log.level > 0 & 'returns' %in% class(h))
+  {
+    msg <- "Operating on [%s, %s]\n"
+    cat(sprintf(msg, format(start(h),"%Y-%m-%d"), format(end(h),"%Y-%m-%d")) )
+  }
 
   if (log.level > 1) { cat("Calculating eigenvalue distribution\n") }
   mp.hist <- do.call(paste('mp.density.',type,sep=''), list(h, ...))
