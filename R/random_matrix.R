@@ -176,7 +176,7 @@ mp.density.kernel.correlation <- function(h, adjust=0.2, kernel='e', ...)
   ds <- density(lambda$values, adjust=adjust, kernel=kernel, ...)
   ds$values <- lambda$values
   ds$vectors <- lambda$vectors
-  plot(ds, xlim=c(0,6), main='Eigenvalue Distribution')
+  if (usePlots()) plot(ds, xlim=c(0,6), main='Eigenvalue Distribution')
   return(ds)
 }
 
