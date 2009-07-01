@@ -73,7 +73,7 @@ optimizePortfolio <- function(h, window, cor.gen=getCorFilter.RMT(), ...)
 # earliest.
 plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
   new.plot=TRUE, y.min=-0.25, y.max=0.25, bg=NULL,
-  name='', color='red', colors=c(), ...)
+  name='', color='red', colors=c(), legend.loc='topright',...)
 {
   if (is.null(window)) { window <- anylength(h) - anylength(weights) + 1 }
 
@@ -120,7 +120,7 @@ plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
   grid()
   #legend('topright', legend=names(stats$colors), lwd=2, cex=1.0, 
   #  col=stats$colors, border.col='slategray4', inset=0.02)
-  legend('topright', legend=names(stats$colors), lwd=2, cex=1.0, 
+  legend(legend.loc, legend=names(stats$colors), lwd=2, cex=1.0, 
     col=stats$colors, inset=0.02)
 
   stats

@@ -2,7 +2,7 @@ library(zoo)
 library(quantmod)
 
 # No filtering
-getCorFilter.Sample <- function() { function(h) cov.sample(h) }
+getCorFilter.Sample <- function() { function(h) cov2cor(cov.sample(h)) }
 
 # This acts as a control case with no cleaning
 getCorFilter.Raw <- function()
@@ -35,7 +35,13 @@ getCorFilter.ShrinkageM <- function(market, prior.fun=cov.prior.cc, ...)
 
   fn <- function(h)
   {
-    dates <- as.Date(rownames(h), format='%Y-%m-%d')
+    if (!is.null(rownames(h))) 
+      dates <- as.Date(rownames(h), format='%Y-%m-%d')
+    else if (!is.null(index(h)))
+      dates <- index(h)
+    else
+      dates <- names(h)
+
     # This is not as efficient if the market has yet to be downloaded, but
     # the interface is cleaner. Think about how to balance this better later.
     if ('character' %in% class(market))

@@ -15,7 +15,7 @@ portfolioReturns(h, weights)
 
 portfolioPerformance(p, rf.rate = 0.01)
 
-plotPerformance(h, weights, window = NULL, rf.rate = 0.01, new.plot = TRUE, y.min = -0.25, y.max = 0.25, bg = NULL, name = "", color = "red", colors = c(), ...)
+plotPerformance(h, weights, window = NULL, rf.rate = 0.01, new.plot = TRUE, y.min = -0.25, y.max = 0.25, bg = NULL, name = "", color = "red", colors = c(), legend.loc = 'bottomright', ...)
 
 compare.EqualWeighted(h, window, color = "#342a31", ...)
 
@@ -36,6 +36,7 @@ compare.Market(market, obs, window, end = Sys.Date(), color = "#44bc43", ...)
   \item{name}{ The name of the series to use in the legend }
   \item{color}{ Color of the plot }
   \item{colors}{ Current colors (and names) of lines plotted on the chart }
+  \item{legend.loc}{ Location of legend in chart }
   \item{market}{ A string or zoo/xts object representing the market to use }
   \item{\dots}{ Additional parameters to plot/lines }
 }

@@ -20,7 +20,11 @@ divergence.information <- function(h, count, window, filter)
 {
   if (is.null(window)) { window <- anylength(h) }
   # Convert to matrix to allow duplicates
+  col.names <- colnames(h)
+  row.names <- format(index(h), '%Y-%m-%d')
   h <- matrix(h, ncol=ncol(h))
+  colnames(h) <- col.names
+  rownames(h) <- row.names
 
   div <- function(junk, h.full)
   {
