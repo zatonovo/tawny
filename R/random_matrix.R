@@ -335,8 +335,8 @@ mp.fit.kernel <- function(hist)
     # This is a bit of hand-waving to get the best fit
     #scale <- max(rhos) / max(hist$density) + 1
     scale <- max(rhos) / max(hist$y) + 0.25
-    if (log.level > 5) { cat("rhos:",rhos,"\n") }
-    if (log.level > 2) { cat("scale:",scale,"\n") }
+    #if (log.level > 5) { cat("rhos:",rhos,"\n") }
+    #if (log.level > 2) { cat("scale:",scale,"\n") }
 
     # Shift the densities to get a better fit
     whole.idx <- head(rhos[rhos > 0], 1)
@@ -356,7 +356,7 @@ mp.fit.kernel <- function(hist)
 
     dist
   }
-  if (log.level > 9) debug(fn)
+  #if (log.level > 9) debug(fn)
   fn
 }
 
