@@ -32,7 +32,7 @@ cov.shrink.covariance <- function(h, T, constant.fun, prior.fun=cov.prior.cc, ..
   F <- prior.fun(S, ...)
   d <- constant.fun(S, T)
 
-  if (logLevel() > 0) cat("Got coefficient d =",d,"\n")
+  logger(INFO, sprintf("Got coefficient d = %s",d))
 
   S.hat <- d * F + (1 - d) * S
   S.hat
@@ -48,7 +48,7 @@ cov.shrink.returns <- function(h, prior.fun=cov.prior.cc, ...)
   k <- shrinkage.intensity(h, F, S)
   d <- max(0, min(k/T, 1))
 
-  if (logLevel() > 0) cat("Got intensity k =",k,"and coefficient d =",d,"\n")
+  logger(INFO, sprintf("Got intensity k = %s and coefficient d = %s",k,d))
 
   S.hat <- d * F + (1 - d) * S
   S.hat

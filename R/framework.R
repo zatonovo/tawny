@@ -1,9 +1,3 @@
-# Look at rmetrics.org
-#library(PerformanceAnalytics)
-library(futile)
-library(zoo)
-library(quantmod)
-
 # h <- getPortfolioReturns(getIndexComposition('^DJI'), obs=400, reload=TRUE)
 # ws <- optimizePortfolio(h, 350, getCorFilter.RMT() )
 # pf <- plotPerformance(h, ws, 350, y.min=-0.4)
@@ -30,20 +24,16 @@ optimizePortfolio <- function(h, window, cor.gen=getCorFilter.RMT(), ...)
   if (! 'zoo' %in% class(h))
   { cat("WARNING: Zoo objects are preferred for dimensional safety\n") }
 
-  log.level <- logLevel()
   my.optimizer <- function(h.window)
   {
-    if (log.level > 2) { cat("Getting correlation matrix\n") }
+    logger(DEBUG, "Getting correlation matrix")
     cor.mat <- cor.gen(h.window, ...)
 
-    if (log.level > 2) { cat("Optimizing portfolio\n") }
+    logger(DEBUG, "Optimizing portfolio")
     p.optimize(h.window, cor.mat)
   }
 
-  if (log.level > 0)
-  {
-    cat("Optimizing portfolio for",format(start(h)),"-",format(end(h)),"\n")
-  }
+  logger(INFO, sprintf("Optimizing portfolio for %s-%s",format(start(h)),format(end(h))))
   ws <- rollapply(h, window, my.optimizer, by.column=FALSE, align='right')
   xts(ws, order.by=index(ws))
 }
@@ -73,33 +63,30 @@ optimizePortfolio <- function(h, window, cor.gen=getCorFilter.RMT(), ...)
 # earliest.
 plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
   new.plot=TRUE, y.min=-0.25, y.max=0.25, bg=NULL,
-  name='', color='red', colors=c(), legend.loc='topright',...)
+  name='', color='red', colors=c(), legend.loc='bottomright',...)
 {
   if (is.null(window)) { window <- anylength(h) - anylength(weights) + 1 }
 
   if (! 'zoo' %in% class(h))
-  { cat("WARNING: Zoo objects are preferred for dimensional safety\n") }
+  { logger(WARN,"Zoo objects are preferred for dimensional safety") }
 
   if (anylength(h) != anylength(weights) + window - 1)
-  { cat("WARNING: Dimensions are inconsistent. This can cause errors\n") }
+  { logger(WARN,"Dimensions are inconsistent. This can cause errors") }
 
-  log.level <- logLevel()
   ts.rets <- portfolioReturns(h, weights)
   stats <- portfolioPerformance(ts.rets, rf.rate)
 
   # Plot this output
-  if (log.level > 3)
-  {
-    cat("y range = [",y.min,",",y.max,"]\n")
-    #cat("x range = [",as.Date(start(xaxis)),",",as.Date(end(xaxis)),"]\n")
-  }
+  logger(TRACE, sprintf("y range = [%s,%s]",y.min,y.max))
+  #cat("x range = [",as.Date(start(xaxis)),",",as.Date(end(xaxis)),"]\n")
+
   #yrange=c(min(y.min, ts.perf-0.05), max(y.max, ts.perf+0.05))
   # Need to synchronize y bounds for multiple charts
   yrange=c(y.min, y.max)
   #if (! is.null(bg)) par(bg=bg, lab=c(7,7,7))
   #else par(lab=c(7,7,7))
 
-  if (log.level > 3) { cat("Plotting chart\n") }
+  logger(TRACE, "Plotting chart")
   if (anylength(dev.list()) > 0 & new.plot & is.null(bg))
   {
     par(lab=c(7,7,7), new=new.plot)
@@ -129,8 +116,7 @@ plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
 # Calculate portfolio returns based
 portfolioReturns <- function(h, weights)
 {
-  log.level <- logLevel()
-  if (log.level > 5) { cat("class(index(h)):",class(index(h)),"\n") }
+  logger(TRACE, sprintf("class(index(h)):%s",class(index(h))))
 
   # Shift dates so weights are used on following date's data for out-of-sample
   # performance
@@ -150,15 +136,11 @@ portfolioReturns <- function(h, weights)
   #ts.rets <- xts(t(h.trim * weights) %*% rep(1, anylength(h.trim)), order.by=index(h.trim))
   if (any(is.na(ts.rets)))
   {
-    cat("WARNING: Filling NA returns with 0\n")
+    logger(WARN,"Filling NA returns with 0")
     ts.rets[is.na(ts.rets)] <- 0
   }
 
-  if (log.level > 2)
-  {
-    cat("Returns count:",anylength(ts.rets),"\n")
-    #cat("Date count:",anylength(xaxis),"\n")
-  }
+  logger(DEBUG, sprintf("Returns count:%s",anylength(ts.rets)))
 
   return(ts.rets)
 }
@@ -217,8 +199,7 @@ compare.EqualWeighted <- function(h, window, color='#342a31', ...)
 {
   my.weights <- function(x) rep(1/ncol(x), ncol(x))
   weights <- xts(rollapply(h, window, my.weights, by.column=FALSE, align='right'), order.by=index(h[window:anylength(h)]))
-  if (logLevel() > 0) 
-  { cat("weights: [",as.Date(start(weights)),",",as.Date(end(weights)),"]\n") }
+  logger(INFO, sprintf("weights: [%s,%s]",as.Date(start(weights)),as.Date(end(weights))))
 
   #index(weights) <- index(h[window:anylength(h)])
   plotPerformance(h, weights, window, color=color, name='naive', ...)
@@ -240,7 +221,7 @@ p.optimize <- function(h, c.denoised)
   try(c.inv <- solve(c.denoised))
   if (!exists('c.inv'))
   {
-    cat("Unable to invert correlation matrix. Returning zeros.\n")
+    logger(WARN, "Unable to invert correlation matrix. Returning zeros.")
     return(rep(0, ncol(h)))
   }
 

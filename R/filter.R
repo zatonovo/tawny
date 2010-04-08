@@ -1,6 +1,3 @@
-library(zoo)
-library(quantmod)
-
 # No filtering
 getCorFilter.Sample <- function() { function(h) cov2cor(cov.sample(h)) }
 

@@ -1,6 +1,3 @@
-library(zoo)
-library(quantmod)
-
 # Optimize a portfolio to minimize risk using RMT
 # Params
 #  h: a matrix of returns. Normalization occurs within the process
@@ -43,24 +40,23 @@ library(quantmod)
 # This should be sufficiently generic to handle all types of h
 filter.RMT <- function(h, hint, ..., type='kernel')
 {
-  log.level <- logLevel()
   classify(h)
-  if (log.level > 0 & 'returns' %in% class(h))
+  if ('returns' %in% class(h))
   {
     msg <- "Operating on [%s, %s]\n"
-    cat(sprintf(msg, format(start(h),"%Y-%m-%d"), format(end(h),"%Y-%m-%d")) )
+    logger(INFO, sprintf(msg, format(start(h),"%Y-%m-%d"), format(end(h),"%Y-%m-%d")) )
   }
 
-  if (log.level > 1) { cat("Calculating eigenvalue distribution\n") }
+  logger(DEBUG, "Calculating eigenvalue distribution")
   mp.hist <- do.call(paste('mp.density.',type,sep=''), list(h, ...))
 
   mp.params <- optim(hint, do.call(paste('mp.fit.',type,sep=''), list(mp.hist)))
   mp.Q <- mp.params$par[1]
   mp.sigma <- mp.params$par[2]
-  if (log.level > 0) { cat("Fit to Marcenko-Pastur with Q",mp.Q,"and sigma",mp.sigma,"\n") }
+  logger(INFO, sprintf("Fit to Marcenko-Pastur with Q %s and sigma %s",mp.Q,mp.sigma))
 
 
-  if (usePlots())
+  if (tawny.options('use.plots'))
   {
     if (anylength(dev.list()) > 0)
       old.par <- par(new=TRUE, ann=FALSE, yaxt='n', col='#44549C', bty='n')
@@ -70,25 +66,20 @@ filter.RMT <- function(h, hint, ..., type='kernel')
     par(old.par)
   }
 
-  if (log.level > 1) { cat("Cleaning eigenvalues\n") }
+  logger(INFO, "Cleaning eigenvalues")
   # Use sigma^2 = 1 - lambda.1 / n
   #lambda.plus <- mp.eigen.max(mp.Q, mp.sigma)
   lambda.1 <- mp.hist$values[1]
   sigma.2 <- sqrt(1 - lambda.1/length(mp.hist$values))
   lambda.plus <- mp.eigen.max(mp.Q, sigma.2)
-  if (log.level > 0)
-  {
-    cat("Upper cutoff (lambda.max) is",lambda.plus,"\n")
-    cat("Variance is",sigma.2,"\n")
-  }
-  if (log.level > 1)
-  {
-    cat("Greatest eigenvalue is",lambda.1,"\n")
-  }
+
+  logger(INFO, sprintf("Upper cutoff (lambda.max) is %s",lambda.plus))
+  logger(INFO, sprintf("Variance is %s",sigma.2))
+  logger(DEBUG, sprintf("Greatest eigenvalue is %s",lambda.1))
   #e.clean <- clean.bouchaud(t(h), mp.hist$values, lambda.plus)
 
-  if (log.level > 2) readline('Press Enter to continue...')
-  if (log.level > 1) { cat("Cleaning correlation matrix\n") }
+  #readline('Press Enter to continue...')
+  logger(DEBUG, "Cleaning correlation matrix")
   #denoise(e.clean, mp.hist$vectors, t(h))
   denoise(mp.hist, lambda.plus, h)
 }
@@ -139,7 +130,7 @@ mp.density.hist <- function(h, breaks=NULL, cutoff=0.01)
   par(bg='#DDDDDD', cex.axis=0.6, cex.lab=0.8, col='#9599BB')
 
   hist <- hist(lambda$values[lambda$values > cutoff], breaks=breaks,
-    main=NA, xlab=label,xlim=c(0,6), freq=FALSE,plot=usePlots())
+    main=NA, xlab=label,xlim=c(0,6), freq=FALSE,plot=tawny.options('use.plots'))
 
   # If properly normalized, these should sum to m
   hist$values <- lambda$values
@@ -176,7 +167,7 @@ mp.density.kernel.correlation <- function(h, adjust=0.2, kernel='e', ...)
   ds <- density(lambda$values, adjust=adjust, kernel=kernel, ...)
   ds$values <- lambda$values
   ds$vectors <- lambda$vectors
-  if (usePlots()) plot(ds, xlim=c(0,6), main='Eigenvalue Distribution')
+  if (tawny.options('use.plots')) plot(ds, xlim=c(0,6), main='Eigenvalue Distribution')
   return(ds)
 }
 
@@ -207,22 +198,13 @@ mp.lambdas <- function(Q,sigma, steps)
   l.min <- mp.eigen.min(Q,sigma)
   l.max <- mp.eigen.max(Q,sigma)
 
-  log.level <- logLevel()
-  if (log.level > 2)
-  {
-    cat("min eigenvalue:",l.min,"\n")
-    cat("max eigenvalue:",l.max,"\n")
-  }
+  logger(DEBUG, sprintf("min eigenvalue:%s",l.min))
+  logger(DEBUG, sprintf("max eigenvalue:%s",l.max))
 
   evs <- seq(round(l.min-1), round(l.max+1), (l.max-l.min)/steps)
   evs[evs < l.min] <- l.min
   evs[evs > l.max] <- l.max
 
-  if (log.level > 5)
-  {
-    #cat("x labels: ",xs,"\n")
-    cat("eigenvalues: ",evs,"\n")
-  }
   evs
 }
 
@@ -262,20 +244,19 @@ mp.eigen.min <- function(Q,sigma) { sigma^2 * (1 - sqrt(1/Q))^2 }
 mp.fit.hist <- function(hist)
 {
   really.big <- 10000000000000
-  log.level <- logLevel()
   fn <- function(ps)
   {
     Q <- ps[1]
     sigma <- ps[2]
     if (Q <= 0)
     { 
-      if (log.level > 1) { cat("Kicking out Q<0:",Q,"sigma:",sigma,"\n") }
+      logger(DEBUG, sprintf("Kicking out Q<0:%s; sigma:%s",Q,sigma))
       return(really.big)
     }
     # Empirically, sigmas below 0.6 are unrealistic
     if (sigma <= 0.6)
     {
-      if (log.level > 1) { cat("Kicking out sigma<0.6:",Q,"sigma:",sigma,"\n") }
+      logger(DEBUG, sprintf("Kicking out sigma<0.6:%s; sigma:%s",Q,sigma))
       return(really.big)
     }
 
@@ -286,25 +267,25 @@ mp.fit.hist <- function(hist)
     # score
     if (max(rhos) == 0)
     {
-      if (log.level > 1) { cat("Kicking out max(rho)==0:",Q,"sigma:",sigma,"\n") }
+      logger(DEBUG, sprintf("Kicking out max(rho)==0:%s; sigma:%s",Q,sigma))
       return(really.big)
     }
 
     # Normalize based on amount of density below MP upper limit
     norm.factor <- sum(hist$density[hist$mids <= l.plus]) * 0.1
-    if (log.level > 1) { cat("Using Q:",Q,"sigma:",sigma,"l+:",l.plus,"\n") }
+    logger(DEBUG, sprintf("Using Q:%s; sigma:%s; l+:%s",Q,sigma,l.plus))
 
     # Scale distance to be inline with calculated densities and histogram
     # This is a bit of hand-waving to get the best fit
     #scale <- max(rhos) / max(hist$density) + 1
     scale <- max(rhos) / max(hist$density) + 0.25
-    if (log.level > 5) { cat("rhos:",rhos,"\n") }
-    if (log.level > 2) { cat("scale:",scale,"\n") }
+    #if (log.level > 5) { cat("rhos:",rhos,"\n") }
+    logger(TRACE, sprintf("scale:%s",scale))
 
     dy <- (rhos - (hist$density * scale)) / norm.factor
     dist <- as.numeric(dy %*% dy)
-    if (log.level > 5) { cat("dy:",dy,"\n\n") }
-    if (log.level > 2) { cat("dist:",dist,"\n\n") }
+    #if (log.level > 5) { cat("dy:",dy,"\n\n") }
+    logger(TRACE, sprintf("dist:%s",dist))
 
     dist
   }
@@ -314,7 +295,6 @@ mp.fit.hist <- function(hist)
 mp.fit.kernel <- function(hist)
 {
   really.big <- 10000000000000
-  log.level <- logLevel()
   zeros <- which(hist$y == 0)
   wholes <- which(hist$y > 0)
   after <- head(zeros[zeros > wholes[1]],1)
@@ -326,13 +306,13 @@ mp.fit.kernel <- function(hist)
     sigma <- ps[2]
     if (Q <= 0)
     { 
-      if (log.level > 1) { cat("Kicking out Q<0:",Q,"sigma:",sigma,"\n") }
+      logger(DEBUG, sprintf("Kicking out Q<0:%s; sigma:%s",Q,sigma))
       return(really.big)
     }
     # Empirically, sigmas below 0.2 are unrealistic
     if (sigma <= 0.2)
     {
-      if (log.level > 1) { cat("Kicking out sigma<0.2:",Q,"sigma:",sigma,"\n") }
+      logger(DEBUG, sprintf("Kicking out sigma<0.2:%s; sigma:%s",Q,sigma))
       return(really.big)
     }
 
@@ -345,11 +325,11 @@ mp.fit.kernel <- function(hist)
     # score
     if (max(rhos) == 0)
     {
-      if (log.level > 1) { cat("Kicking out max(rho)==0:",Q,"sigma:",sigma,"\n") }
+      logger(DEBUG, sprintf("Kicking out max(rho)==0:%s; sigma:%s",Q,sigma))
       return(really.big)
     }
 
-    if (log.level > 1) { cat("Trying Q:",Q,"sigma:",sigma,"l+:",l.plus,"\n") }
+    logger(DEBUG, sprintf("Trying Q:%s; sigma:%s; l+:%s",Q,sigma,l.plus))
 
     # Scale densities so that the max values of each are about the same.
     # This is a bit of hand-waving to get the best fit
@@ -371,8 +351,8 @@ mp.fit.kernel <- function(hist)
     # Just calculate the distances of densities less than the MP upper limit
     #dy <- rhos[hist$x <= l.plus] - hist$y[hist$x <= l.plus] * scale
     dist <- as.numeric(dy %*% dy)
-    if (log.level > 5) { cat("dy:",dy,"\n\n") }
-    if (log.level > 2) { cat("dist:",dist,"\n\n") }
+    #if (log.level > 5) { cat("dy:",dy,"\n\n") }
+    logger(TRACE, sprintf("dist:",dist))
 
     dist
   }
