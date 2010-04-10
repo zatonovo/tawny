@@ -15,3 +15,4 @@
       defaults=list(use.plots=FALSE))
 }
 
+.init()
