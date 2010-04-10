@@ -102,6 +102,9 @@ mp.rho returns either a scalar or a vector.
 \author{ Brian Lee Yung Rowe }
 \seealso{ \code{\link{tawny}}, \code{\link{optimizePortfolio}} }
 \examples{
+# This is autorun outside of examples
+tawny:::.init()
+
 # Fit the appropriate MP curve to the data. This will estimate Q and sigma.
 # hist is a histogram object
 h <- getRandomMatrix(1000, 6000)

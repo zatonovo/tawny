@@ -68,6 +68,9 @@ compare.Market(market, obs, window, end = Sys.Date(), color = "#44bc43", ...)
 }
 \author{ Brian Lee Yung Rowe }
 \examples{
+# This is autorun outside of examples
+tawny:::.init()
+
 data(sp500.subset)
 ys <- sp500.subset
 ws <- optimizePortfolio(ys, 150, getCorFilter.RMT())

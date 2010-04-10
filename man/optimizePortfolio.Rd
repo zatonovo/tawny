@@ -90,6 +90,9 @@ classify(x)
 }
 \author{ Brian Lee Yung Rowe}
 \examples{
+# This is autorun outside of examples
+tawny:::.init()
+
 data(sp500.subset)
 h <- sp500.subset
 ws <- optimizePortfolio(h, 190, getCorFilter.Sample() )

@@ -1,8 +1,8 @@
 # Look at rmetrics.org
 #library(PerformanceAnalytics)
-library(futile)
-library(zoo)
-library(quantmod)
+#library(futile)
+#library(zoo)
+#library(quantmod)
 
 # Assign a class to the given object
 # If h is not square, then assume it is returns
@@ -49,7 +49,7 @@ ensure <- function(serie, src='FRED', reload=FALSE, ...)
 
     if (! reload) next
 
-    cat("(Re)loading symbol",series,"from",src,"\n")
+    logger(DEBUG,sprintf("(Re)loading symbol %s from %s",series,src))
     getSymbols(series, src=src, ...)
   }
 }

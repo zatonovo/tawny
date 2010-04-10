@@ -28,8 +28,6 @@ cov.shrink.correlation <- function(h, ...)
 # original returns stream.
 cov.shrink.covariance <- function(h, T, constant.fun, prior.fun=cov.prior.cc, ...)
 {
-  .init()
-  #logger <- getLogger('tawny.shrinkage')
   S <- h
   F <- prior.fun(S, ...)
   d <- constant.fun(S, T)
@@ -42,9 +40,6 @@ cov.shrink.covariance <- function(h, T, constant.fun, prior.fun=cov.prior.cc, ..
 
 cov.shrink.returns <- function(h, prior.fun=cov.prior.cc, ...)
 {
-  .init()
-  #logger <- getLogger('tawny.shrinkage')
-  #if (logLevel() > 0) cat("Shrinking covariance for",last(index(returns)),"\n")
   S <- cov.sample(h)
 
   T <- nrow(h)

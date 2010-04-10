@@ -52,6 +52,9 @@ ensure(serie, src = 'FRED', reload = FALSE, ...)
 \author{ Brian Lee Yung Rowe}
 \seealso{ \code{\link{tawny}} }
 \examples{
+# This is autorun outside of examples
+tawny:::.init()
+
 # Get a portfolio
 h <- getPortfolioReturns(c('A','AA','AAPL'), obs=150)
 

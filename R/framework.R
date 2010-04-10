@@ -181,6 +181,8 @@ compare.Market <- function(market, obs, window, end=Sys.Date(), color='#44bc43',
     mkt <- getSymbols(market, src='yahoo',from=start,to=end, auto.assign=FALSE)
   }
   else mkt <- market
+  # xts has moved to use POSIX
+  end <- as.POSIXct(end)
 
   mkt.ret <- Delt(Cl(mkt))
   mkt.ret <- mkt.ret[index(mkt.ret) <= end]

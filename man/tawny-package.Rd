@@ -84,6 +84,9 @@ Oct. 2001. London. 12 Feb. 2009
 \keyword{ ts }
 \seealso{ \code{\link{optimizePortfolio}}, \code{\link{filter.RMT}}, \code{\link{getPortfolioReturns}} }
 \examples{
+# This is autorun outside of examples
+tawny:::.init()
+
 ## High level use of package
 # Select a portfolio using 200 total observations
 data(sp500.subset)

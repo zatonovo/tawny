@@ -45,6 +45,9 @@ plotDivergenceLimit.kl(m, t.range, ..., overlay = FALSE)
 }
 \author{ Brian Lee Yung Rowe}
 \examples{
+# This is autorun outside of examples
+tawny:::.init()
+
 data(sp500.subset)
 
 plotDivergenceLimit.kl(100, 80:499, col='green', ylim=c(0,55))

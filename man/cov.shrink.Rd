@@ -76,6 +76,9 @@ shrinkage.c(prior, sample)
 \author{ Brian Lee Yung Rowe }
 \seealso{ \code{\link{tawny}}, \code{\link{optimizePortfolio}} }
 \examples{
+  # This is autorun outside of examples
+  tawny:::.init()
+
   # Estimate the covariance matrix based on the given asset returns
   data(sp500.subset)
   ys <- sp500.subset
