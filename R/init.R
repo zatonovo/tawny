@@ -9,9 +9,9 @@
 
 .init <- function()
 {
-  logger <- getLogger('tawny')
-  tawny.options <<- OptionsManager('tawny.options',
-    defaults=list(use.plots=FALSE))
+  if (!exists('logger')) logger <<- getLogger('tawny')
+  if (!exists('tawny.options'))
+    tawny.options <<- OptionsManager('tawny.options',
+      defaults=list(use.plots=FALSE))
 }
 
-if (!exists('tawny.options')) { .init() }
