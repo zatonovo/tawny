@@ -217,7 +217,7 @@ mp.rho <- function(Q,sigma, e.values)
   l.min <- mp.eigen.min(Q,sigma)
   l.max <- mp.eigen.max(Q,sigma)
 
-  k <- (Q / 2*pi*sigma^2)
+  k <- Q / (2*pi*sigma^2)
   rho <- k * sqrt(pmax(0, (l.max-e.values)*(e.values-l.min)) ) / e.values
   rho
 }
