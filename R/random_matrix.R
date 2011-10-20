@@ -346,6 +346,7 @@ mp.fit.kernel <- function(hist)
     # This is basically dividing the distance by the area under the curve, which
     # gives a bias towards larger areas
     norm.factor <- sum(rhos[hist$x <= l.plus])
+    if (norm.factor <= 0) { return(really.big) }
     dy <- (rhos - (hist$y * scale)) / norm.factor
 
     # Just calculate the distances of densities less than the MP upper limit

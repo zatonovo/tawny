@@ -7,8 +7,9 @@
   .init()
 }
 
-.init <- function()
+.init <- function(loglevel=INFO)
 {
+  config_logger(threshold=loglevel)
   if (!exists('logger')) logger <<- getLogger('tawny')
   if (!exists('tawny.options'))
     tawny.options <<- OptionsManager('tawny.options',
