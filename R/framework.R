@@ -19,7 +19,8 @@
 # Attempls to dispatch based on characteristics of h.
 
 # Optimizes a returns series over a window.
-optimizePortfolio <- function(h, window, cor.gen=getCorFilter.RMT(), ...)
+#optimizePortfolio <- function(h, window, cor.gen=getCorFilter.RMT(), ...)
+optimizePortfolio <- function(h, window, estimator, ...)
 {
   if (! 'zoo' %in% class(h))
   { cat("WARNING: Zoo objects are preferred for dimensional safety\n") }
@@ -27,7 +28,8 @@ optimizePortfolio <- function(h, window, cor.gen=getCorFilter.RMT(), ...)
   my.optimizer <- function(h.window)
   {
     logger(DEBUG, "Getting correlation matrix")
-    cor.mat <- cor.gen(h.window, ...)
+    #cor.mat <- cor.gen(h.window, ...)
+    cor.mat <- denoise(h, estimator, ...)
 
     logger(DEBUG, "Optimizing portfolio")
     p.optimize(h.window, cor.mat)
