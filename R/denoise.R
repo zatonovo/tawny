@@ -28,6 +28,9 @@ denoise.emp <- function(p, estimator)
 
 # p <- create(TawnyPortfolio, h, 90)
 # denoise(p,create(RandomMatrixEst))
+#
+# p <- create(TawnyPortfolio, c('FCX','AAPL','JPM','AMZN','VMW','TLT','GLD','FXI','ILF','XOM'))
+# w <- rollapply(p, function(x) denoise(x, create(RandomMatrixEst)))
 denoise.rmt %when% (estimator %isa% RandomMatrixEst & p %isa% TawnyPortfolio)
 denoise.rmt <- function(p, estimator)
 {
