@@ -81,7 +81,7 @@ filter.RMT <- function(h, hint, ..., type='kernel')
   #readline('Press Enter to continue...')
   logger(DEBUG, "Cleaning correlation matrix")
   #denoise(e.clean, mp.hist$vectors, t(h))
-  denoise(mp.hist, lambda.plus, h)
+  cor.clean(mp.hist, lambda.plus, h)
 }
 
 # h TxM zoo returns matrix
@@ -327,7 +327,7 @@ r.normalize <- function(h) { apply(h, 2, function(x) x / sd(x)) }
 #  e.values: Cleaned eigenvalues
 #  e.vectors: Eigenvectors of correlation matrix of normalized returns
 #  h: non-normalized returns matrix (only used for labels)
-denoise <- function(hist, lambda.plus=1.6, h=NULL)
+cor.clean <- function(hist, lambda.plus=1.6, h=NULL)
 {
   e.values <- hist$values
   avg <- mean(e.values[e.values < lambda.plus])

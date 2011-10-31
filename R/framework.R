@@ -19,8 +19,38 @@
 # Attempls to dispatch based on characteristics of h.
 
 # Optimizes a returns series over a window.
+# s <- c('FCX','AAPL','JPM','AMZN','VMW','TLT','GLD','FXI','ILF','XOM')
+# p <- create(TawnyPortfolio, s)
+# ws <- optimizePortfolio(p, create(RandomMatrixEst))
+optimizePortfolio.two %when% (p %isa% TawnyPortfolio)
+optimizePortfolio.two <- function(p, estimator)
+{
+  optimizePortfolio(p, estimator, p.optimize)
+}
+
+optimizePortfolio.port %when% (p %isa% TawnyPortfolio)
+optimizePortfolio.port <- function(p, estimator, optimizer)
+{
+  my.optimizer <- function(p)
+  {
+    logger(DEBUG, "Getting correlation matrix")
+    #cor.mat <- cor.gen(h.window, ...)
+    cor.mat <- denoise(p, estimator)
+
+    logger(DEBUG, "Optimizing portfolio")
+    optimizer(p$returns, cor.mat)
+  }
+
+  logger(INFO, sprintf("Optimizing portfolio for %s-%s",
+         format(start(p)), format(end(p)) ))
+  ws <- rollapply(p, my.optimizer)
+  xts(ws, order.by=index(ws))
+}
+
+# This is for backwards compatibility
 #optimizePortfolio <- function(h, window, cor.gen=getCorFilter.RMT(), ...)
-optimizePortfolio <- function(h, window, estimator, ...)
+optimizePortfolio.def %when% TRUE
+optimizePortfolio.def <- function(h, window, estimator, ...)
 {
   if (! 'zoo' %in% class(h))
   { cat("WARNING: Zoo objects are preferred for dimensional safety\n") }
