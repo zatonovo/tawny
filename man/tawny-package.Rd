@@ -91,14 +91,17 @@ tawny:::.init()
 # Select a portfolio using 200 total observations
 data(sp500.subset)
 h <- sp500.subset
+p <- create(TawnyPortfolio, h, 150)
+
 # Optimize using a window of length 200 (there will be 51 total iterations)
-ws <- optimizePortfolio(h, 150, getCorFilter.RMT() )
+ws <- optimizePortfolio(p, create(RandomMatrixEst))
+
 # Plot the performance of the resulting optimized portfolio
-pf <- plotPerformance(h, ws, 150, y.min=-0.4)
+#pf <- plotPerformance(h, ws, 150, y.min=-0.4)
 # Compare the performance with a naive equal-weighted portfolio
-ef <- compare.EqualWeighted(h, 150, y.min=-0.4)
+#ef <- compare.EqualWeighted(h, 150, y.min=-0.4)
 # Also compare against the S&P 500
-mf <- compare.Market('^GSPC',200,150, y.min=-0.4)
+#mf <- compare.Market('^GSPC',200,150, y.min=-0.4)
 
 # Generate weights based on the constant correlation shrinkage estimator
 ws <- optimizePortfolio(h, 150, getCorFilter.Shrinkage())

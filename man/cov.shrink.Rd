@@ -81,18 +81,18 @@ shrinkage.c(prior, sample)
 
   # Estimate the covariance matrix based on the given asset returns
   data(sp500.subset)
-  ys <- sp500.subset
+  ys <- create(TawnyPortfolio, sp500.subset, 150)
   S.hat <- cov.shrink(ys)
 
   # Optimize the portfolio weights using the shrinkage estimator
-  ws <- optimizePortfolio(ys, 150, getCorFilter.Shrinkage())
-  plotPerformance(ys,ws, bg='white', name='Shrinkage')
+  ws <- optimizePortfolio(ys, create(ShrinkageEst))
+  #plotPerformance(ys,ws, bg='white', name='Shrinkage')
 
   # Calculate the sample covariance matrix
-  S <- cov.sample(ys)
+  #S <- cov.sample(ys)
 
   # Calculate the shrinkage coefficient
-  F <- cov.prior.cc(S)
-  k <- shrinkage.intensity(ys, F, S)
+  #F <- cov.prior.cc(S)
+  #k <- shrinkage.intensity(ys, F, S)
 }
 \keyword{ ts }

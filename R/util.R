@@ -8,6 +8,7 @@
 # If h is not square, then assume it is returns
 # If h has values > 1, assume covariance matrix of returns
 # Else assume correlation matrix of returns
+# OBSOLETE in 2.0
 classify <- function(x)
 {
   if (is.null(dim(x))) stop("h must have a dim attribute")
