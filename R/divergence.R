@@ -9,6 +9,48 @@
 # divergence(sp500.subset, 25, filter=getCorFilter.Shrinkage())
 # Can measure information (the default) or stability. Measuring stability will
 # resample twice to get two forms of the correlation matrix.
+#### TODO
+# Add %also% operator
+# Add %default% operator
+# Handle ... in default
+# as(Type, object)
+as %when% (Type %isa% matrix)
+as %also% (object %isa% zoo)
+as %bind% function(Type, object) # Auto number the functions
+{
+  col.names <- colnames(object)
+  row.names <- format(index(object), '%Y-%m-%d')
+  h <- matrix(object, ncol=ncol(object))
+  colnames(h) <- col.names
+  rownames(h) <- row.names
+  h
+}
+
+divergence.tny %when% (p %hasa% returns)
+divergence.tny %also% (algo %isa% KullbackLeibler & algo$measure=='information')
+divergence.tny <- function(p, count, filter, algo)
+{
+  # Convert to matrix to allow duplicates
+  h <- deform(p$returns,matrix)
+  if (is.null(window)) { window <- anylength(h) }
+
+  div <- function(junk, h.full)
+  {
+    h.window <- h.full[sample(index(h.full), window, replace=TRUE), ]
+    c.sample <- cov2cor(cov.sample(h.window))
+    c.model <- filter(h.window)
+
+    divergence <- divergence.kl(c.sample, c.model)
+    return(divergence)
+  }
+  ds <- sapply(1:count, div, h)
+
+  theory <- divergenceLimit.kl(ncol(h), window)
+  #cat("Theoretical divergence is",theory,"\n")
+
+  return(c(mean=mean(ds, na.rm=TRUE), sd=sd(ds, na.rm=TRUE), limit=theory))
+}
+
 divergence <- function(h, count, window=NULL, filter=getCorFilter.RMT(), 
   measure='information')
 {

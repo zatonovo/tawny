@@ -44,7 +44,7 @@ optimizePortfolio.port <- function(p, estimator, optimizer)
   logger(INFO, sprintf("Optimizing portfolio for %s-%s",
          format(start(p)), format(end(p)) ))
   ws <- rollapply(p, my.optimizer)
-  xts(ws, order.by=index(ws))
+  xts(ws, order.by=as.Date(rownames(ws)))
 }
 
 # This is for backwards compatibility
