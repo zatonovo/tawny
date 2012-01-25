@@ -1,10 +1,9 @@
 \name{divergence}
 \alias{divergence}
-\alias{divergence.information}
 \alias{divergence.stability}
 \alias{divergence.kl}
-\alias{divergenceLimit.kl}
-\alias{stabilityLimit.kl}
+\alias{divergence_lim}
+\alias{stability_lim}
 \alias{plotDivergenceLimit.kl}
 \title{ Measure the divergence and stability between two correlation matrices }
 \description{
@@ -15,12 +14,11 @@
   the effectiveness of a particular filtering strategy for correlation matrices.
 }
 \usage{
-divergence(h, count, window = NULL, filter = getCorFilter.RMT(), measure = 'information')
-divergence.information(h, count, window, filter)
-divergence.stability(h, count, window, filter)
+divergence(...)
 divergence.kl(sigma.1, sigma.2)
-divergenceLimit.kl(m, t = NULL)
-stabilityLimit.kl(m, t = NULL)
+divergence_lim(...)
+stability_lim(...)
+divergence.stability(h, count, window, filter)
 plotDivergenceLimit.kl(m, t.range, ..., overlay = FALSE)
 }
 \arguments{
@@ -28,7 +26,6 @@ plotDivergenceLimit.kl(m, t.range, ..., overlay = FALSE)
   \item{count}{ The number of bootstrap observations to create }
   \item{window}{ The number of samples to include in each observation. Defaults to the anylength of h. }
   \item{filter}{ The correlation filter to measure }
-  \item{measure}{ The type of divergence to calculate. Possible choices are information (default) or stability. }
   \item{sigma.1}{ The sample correlation matrix }
   \item{sigma.2}{ The model correlation matrix (aka the filtered matrix) }
   \item{m}{ The number of assets }
@@ -37,8 +34,13 @@ plotDivergenceLimit.kl(m, t.range, ..., overlay = FALSE)
   \item{overlay}{ Overlay the divergence limit plot on an existing plot. Default is FALSE. }
   \item{\dots}{ Additional parameters to pass to plot or lines }
 }
-%\details{
-%}
+\details{
+divergence(h, count, window = NULL, filter = getCorFilter.RMT(), measure = 'information')
+divergence_lim(m, t = NULL)
+stability_lim(m, t = NULL)
+
+measure - The type of divergence to calculate. Possible choices are information (default) or stability.
+}
 \value{
   A summary of the results of the divergence calculation including the mean
   divergence and an effective limit based on a random matrix.
@@ -49,11 +51,12 @@ plotDivergenceLimit.kl(m, t.range, ..., overlay = FALSE)
 tawny:::.init()
 
 data(sp500.subset)
+h <- sp500.subset
 
 plotDivergenceLimit.kl(100, 80:499, col='green', ylim=c(0,55))
 
-divergence(sp500.subset, 25, filter=getCorFilter.RMT())
-divergence(sp500.subset, 25, filter=getCorFilter.Shrinkage())
+divergence(h, 25, filter=function(x) denoise(x, create(RandomMatrixFilter)))
+divergence(h, 25, filter=function(x) denoise(x, create(ShrinkageFilter)))
 
 }
 \keyword{ ts }

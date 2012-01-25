@@ -32,7 +32,7 @@ compare.Market(market, obs, window, end = Sys.Date(), color = "#44bc43", ...)
   \item{new.plot}{ Pass-through to new in plot }
   \item{y.min}{ Minimum y value for plot }
   \item{y.max}{ Maximum y value for plot }
-  \item{bg}{ }
+  \item{bg}{ Pending }
   \item{name}{ The name of the series to use in the legend }
   \item{color}{ Color of the plot }
   \item{colors}{ Current colors (and names) of lines plotted on the chart }

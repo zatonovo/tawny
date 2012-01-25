@@ -9,18 +9,18 @@
 # If h has values > 1, assume covariance matrix of returns
 # Else assume correlation matrix of returns
 # OBSOLETE in 2.0
-classify <- function(x)
-{
-  if (is.null(dim(x))) stop("h must have a dim attribute")
-
-  tawny.types <- c('returns','covariance','correlation')
-  if (any(tawny.types %in% class(x))) invisible(x)
-
-  if (ncol(x) != nrow(x)) class(x) <- c(class(x), 'returns')
-  else if (max(x) > 1) class(x) <- c(class(x), 'covariance')
-  else class(x) <- c(class(x), 'correlation')
-  invisible(x)
-}
+#classify <- function(x)
+#{
+#  if (is.null(dim(x))) stop("h must have a dim attribute")
+#
+#  tawny.types <- c('returns','covariance','correlation')
+#  if (any(tawny.types %in% class(x))) invisible(x)
+#
+#  if (ncol(x) != nrow(x)) class(x) <- c(class(x), 'returns')
+#  else if (max(x) > 1) class(x) <- c(class(x), 'covariance')
+#  else class(x) <- c(class(x), 'correlation')
+#  invisible(x)
+#}
 
 
 

@@ -1,3 +1,9 @@
+# High level functions
+# tny.optimize(Portfolio, Model)
+# denoise(Portfolio, Model)
+# backtest(Portfolio, Denoiser, Optimizer)
+
+
 # h <- getPortfolioReturns(getIndexComposition('^DJI'), obs=400, reload=TRUE)
 # ws <- optimizePortfolio(h, 350, getCorFilter.RMT() )
 # pf <- plotPerformance(h, ws, 350, y.min=-0.4)
@@ -22,14 +28,14 @@
 # s <- c('FCX','AAPL','JPM','AMZN','VMW','TLT','GLD','FXI','ILF','XOM')
 # p <- create(TawnyPortfolio, s)
 # ws <- optimizePortfolio(p, create(RandomMatrixEst))
-optimizePortfolio.two %when% (p %isa% TawnyPortfolio)
-optimizePortfolio.two <- function(p, estimator)
+optimizePortfolio %when% (p %isa% TawnyPortfolio)
+optimizePortfolio %as% function(p, estimator)
 {
   optimizePortfolio(p, estimator, p.optimize)
 }
 
-optimizePortfolio.port %when% (p %isa% TawnyPortfolio)
-optimizePortfolio.port <- function(p, estimator, optimizer)
+optimizePortfolio %when% (p %isa% TawnyPortfolio)
+optimizePortfolio %as% function(p, estimator, optimizer)
 {
   my.optimizer <- function(p)
   {
@@ -49,8 +55,8 @@ optimizePortfolio.port <- function(p, estimator, optimizer)
 
 # This is for backwards compatibility
 #optimizePortfolio <- function(h, window, cor.gen=getCorFilter.RMT(), ...)
-optimizePortfolio.def %when% TRUE
-optimizePortfolio.def <- function(h, window, estimator, ...)
+optimizePortfolio %when% TRUE
+optimizePortfolio %as% function(h, window, estimator, ...)
 {
   if (! 'zoo' %in% class(h))
   { cat("WARNING: Zoo objects are preferred for dimensional safety\n") }

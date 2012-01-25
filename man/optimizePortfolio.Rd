@@ -1,12 +1,6 @@
 \name{optimizePortfolio}
 \alias{optimizePortfolio}
-\alias{getCorFilter.RMT}
-\alias{getCorFilter.Shrinkage}
-\alias{getCorFilter.Raw}
-\alias{getCorFilter.Sample}
-\alias{getCorFilter.ShrinkageM}
 \alias{p.optimize}
-\alias{classify}
 \title{ Optimize a portfolio using the specified correlation filter }
 \description{
   Performs basic minimum variance optimization on the given portfolio over the 
@@ -24,34 +18,18 @@
   constant correlation model or the identity as the model.
 }
 \usage{
-optimizePortfolio(h, window, cor.gen, ...)
-
-getCorFilter.Shrinkage(prior.fun = cov.prior.cc, ...)
-
-getCorFilter.ShrinkageM(market, prior.fun = cov.prior.cc, ...)
-
-getCorFilter.RMT(hint = c(4,1), ...)
-
-getCorFilter.Raw()
-
-getCorFilter.Sample()
+optimizePortfolio(...)
 
 p.optimize(h, c.denoised)
-
-classify(x)
 }
 \arguments{
   \item{h}{ A zoo object representing a portfolio with dimensions T x M }
-  \item{window}{ The size of the window to use when generating a correlation matrix }
-  \item{cor.gen}{ A function that takes a portfolio with window observations and generates a correlation matrix }
-  \item{prior.fun}{ The function that generates the prior/model covariance matrix for shrinkage estimation }
-  \item{hint}{ A hint for the correct value of Q and sigma for random matrix theory }
-  \item{market}{ The market to remove from the returns stream }
   \item{c.denoised}{ A cleaned correlation matrix }
-  \item{\dots}{ Additional parameters to pass to the cor.gen function }
-  \item{x}{ An object representing either a returns covariance or correlation matrix}
+  \item{\dots}{ Additional parameters}
 }
 \details{
+optimizePortfolio(h, window, cor.gen, ...)
+
   This is the primary entry point to using the tawny package. This function 
   calculates the portfolio weights over the portfolio based on a rolling window.
   Given M assets in the portfolio, T total observations, and a window of length

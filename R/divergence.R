@@ -10,13 +10,11 @@
 # Can measure information (the default) or stability. Measuring stability will
 # resample twice to get two forms of the correlation matrix.
 #### TODO
-# Add %also% operator
 # Add %default% operator
 # Handle ... in default
-# as(Type, object)
-as %when% (Type %isa% matrix)
-as %also% (object %isa% zoo)
-as %bind% function(Type, object) # Auto number the functions
+deform %when% (Type %isa% matrix)
+deform %also% (object %isa% zoo)
+deform %as% function(object, Type) # Auto number the functions
 {
   col.names <- colnames(object)
   row.names <- format(index(object), '%Y-%m-%d')
@@ -26,12 +24,26 @@ as %bind% function(Type, object) # Auto number the functions
   h
 }
 
-divergence.tny %when% (p %hasa% returns)
-divergence.tny %also% (algo %isa% KullbackLeibler & algo$measure=='information')
-divergence.tny <- function(p, count, filter, algo)
+divergence %when% (ret %isa% zoo)
+divergence %as% function(ret, count, filter)
+{
+  p <- create(TawnyPortfolio, ret, nrow(ret))
+  divergence(p, count, filter)
+}
+
+divergence %when% (p %hasa% returns)
+divergence %also% is.function(filter)
+divergence %as% function(p, count, filter)
+{
+  divergence(p, count, filter, create(KullbackLeibler, measure='information'))
+}
+
+divergence %when% (p %hasa% returns)
+divergence %also% (algo %isa% KullbackLeibler & algo$measure=='information')
+divergence %as% function(p, count, filter, algo)
 {
   # Convert to matrix to allow duplicates
-  h <- deform(p$returns,matrix)
+  h <- deform(p$returns,'matrix')
   if (is.null(window)) { window <- anylength(h) }
 
   div <- function(junk, h.full)
@@ -45,45 +57,45 @@ divergence.tny <- function(p, count, filter, algo)
   }
   ds <- sapply(1:count, div, h)
 
-  theory <- divergenceLimit.kl(ncol(h), window)
+  theory <- divergence_lim(ncol(h), window, algo)
   #cat("Theoretical divergence is",theory,"\n")
 
   return(c(mean=mean(ds, na.rm=TRUE), sd=sd(ds, na.rm=TRUE), limit=theory))
 }
 
-divergence <- function(h, count, window=NULL, filter=getCorFilter.RMT(), 
-  measure='information')
-{
-  fn <- paste('divergence', measure, sep='.')
-  do.call(fn, list(h, count, window, filter))
-}
+#divergence <- function(h, count, window=NULL, filter=getCorFilter.RMT(), 
+#  measure='information')
+#{
+#  fn <- paste('divergence', measure, sep='.')
+#  do.call(fn, list(h, count, window, filter))
+#}
 
-divergence.information <- function(h, count, window, filter)
-{
-  if (is.null(window)) { window <- anylength(h) }
-  # Convert to matrix to allow duplicates
-  col.names <- colnames(h)
-  row.names <- format(index(h), '%Y-%m-%d')
-  h <- matrix(h, ncol=ncol(h))
-  colnames(h) <- col.names
-  rownames(h) <- row.names
-
-  div <- function(junk, h.full)
-  {
-    h.window <- h.full[sample(index(h.full), window, replace=TRUE), ]
-    c.sample <- cov2cor(cov.sample(h.window))
-    c.model <- filter(h.window)
-
-    divergence <- divergence.kl(c.sample, c.model)
-    return(divergence)
-  }
-  ds <- sapply(1:count, div, h)
-
-  theory <- divergenceLimit.kl(ncol(h), window)
-  #cat("Theoretical divergence is",theory,"\n")
-
-  return(c(mean=mean(ds, na.rm=TRUE), sd=sd(ds, na.rm=TRUE), limit=theory))
-}
+#divergence.information <- function(h, count, window, filter)
+#{
+#  if (is.null(window)) { window <- anylength(h) }
+#  # Convert to matrix to allow duplicates
+#  col.names <- colnames(h)
+#  row.names <- format(index(h), '%Y-%m-%d')
+#  h <- matrix(h, ncol=ncol(h))
+#  colnames(h) <- col.names
+#  rownames(h) <- row.names
+#
+#  div <- function(junk, h.full)
+#  {
+#    h.window <- h.full[sample(index(h.full), window, replace=TRUE), ]
+#    c.sample <- cov2cor(cov.sample(h.window))
+#    c.model <- filter(h.window)
+#
+#    divergence <- divergence.kl(c.sample, c.model)
+#    return(divergence)
+#  }
+#  ds <- sapply(1:count, div, h)
+#
+#  theory <- divergenceLimit.kl(ncol(h), window)
+#  #cat("Theoretical divergence is",theory,"\n")
+#
+#  return(c(mean=mean(ds, na.rm=TRUE), sd=sd(ds, na.rm=TRUE), limit=theory))
+#}
 
 # Measuring information compares sample correlation matrix with filtered
 # correlation matrix
@@ -98,14 +110,15 @@ divergence.kl <- function(sigma.1, sigma.2)
 
 # The expected value of the divergence for random matrices (sample versus 
 # true correlation matrix)
-divergenceLimit.kl <- function(m, t=NULL)
+divergence_lim %when% (model %isa% KullbackLeibler)
+divergence_lim %as% function(ps, model)
 {
-  if (is.null(t))
-  {
-    t <- m[2]
-    m <- m[1]
-  }
+  divergence_lim(ps[1], ps[2], model)
+}
 
+divergence_lim %when% (model %isa% KullbackLeibler)
+divergence_lim %as% function(m, t, model)
+{
   l <- t - m + 1
   0.5 * ( m * log(t/2) - sum(digamma((l:t)/2)) )
 }
@@ -115,8 +128,10 @@ divergenceLimit.kl <- function(m, t=NULL)
 # plotDivergenceLimit.kl(40, 80:499, col='red', overlay=TRUE)
 plotDivergenceLimit.kl <- function(m, t.range, ..., overlay=FALSE)
 {
+  model <- create(KullbackLeibler)
   ns <- rep(m,length(t.range))
-  limit <- apply(matrix(c(ns, t.range), ncol=2), 1, divergenceLimit.kl)
+  limit <- apply(matrix(c(ns, t.range), ncol=2), 1, 
+    function(m) divergence_lim(m, model))
   if (! overlay)
   {
     ylab <- 'Expected KL divergence'
@@ -131,7 +146,8 @@ plotDivergenceLimit.kl <- function(m, t.range, ..., overlay=FALSE)
 }
 
 # Limit for stability (distance between two sample correlation matrices)
-stabilityLimit.kl <- function(m, t=NULL)
+stability_lim %when% (model %isa% KullbackLeibler)
+stability_lim %as% function(m, t=NULL, model)
 { 
   if (is.null(t))
   {
@@ -161,7 +177,7 @@ divergence.stability <- function(h, count, window, filter)
   }
   ds <- sapply(1:count, div, h)
 
-  theory <- stabilityLimit.kl(ncol(h), window)
+  theory <- stability_lim(ncol(h), window)
   #cat("Theoretical divergence is",theory,"\n")
 
   return(c(mean=mean(ds, na.rm=TRUE), sd=sd(ds, na.rm=TRUE), limit=theory))

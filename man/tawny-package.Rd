@@ -82,7 +82,7 @@ Oct. 2001. London. 12 Feb. 2009
 
 \keyword{ package }
 \keyword{ ts }
-\seealso{ \code{\link{optimizePortfolio}}, \code{\link{filter.RMT}}, \code{\link{getPortfolioReturns}} }
+\seealso{ \code{\link{optimizePortfolio}}, \code{\link{denoise}}, \code{\link{getPortfolioReturns}} }
 \examples{
 # This is autorun outside of examples
 tawny:::.init()
