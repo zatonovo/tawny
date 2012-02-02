@@ -72,8 +72,8 @@ compare.Market(market, obs, window, end = Sys.Date(), color = "#44bc43", ...)
 tawny:::.init()
 
 data(sp500.subset)
-ys <- sp500.subset
-ws <- optimizePortfolio(ys, 150, getCorFilter.RMT())
+ys <- create(TawnyPortfolio, sp500.subset, 150)
+ws <- optimizePortfolio(ys, create(RandomMatrixFilter))
 plotPerformance(ys, ws, 150)
 compare.EqualWeighted(ys, 150)
 compare.Market('^GSPC', 200, 150)

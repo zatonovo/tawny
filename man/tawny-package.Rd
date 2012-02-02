@@ -94,7 +94,7 @@ h <- sp500.subset
 p <- create(TawnyPortfolio, h, 150)
 
 # Optimize using a window of length 200 (there will be 51 total iterations)
-ws <- optimizePortfolio(p, create(RandomMatrixEst))
+ws <- optimizePortfolio(p, create(RandomMatrixFilter))
 
 # Plot the performance of the resulting optimized portfolio
 #pf <- plotPerformance(h, ws, 150, y.min=-0.4)
@@ -104,21 +104,7 @@ ws <- optimizePortfolio(p, create(RandomMatrixEst))
 #mf <- compare.Market('^GSPC',200,150, y.min=-0.4)
 
 # Generate weights based on the constant correlation shrinkage estimator
-ws <- optimizePortfolio(h, 150, getCorFilter.Shrinkage())
+ws <- optimizePortfolio(h, 150, create(ShrinkageFilter))
 pf <- plotPerformance(h, ws, 150, y.min=-0.4)
-
-
-## Low level use of the package
-# View the theoretical Marcenko-Pastur distribution of eigenvalues of a
-# random matrix
-mp.theory(Q=4.2, sigma=1.1)
-
-# Calculate the density of eigenvalues for a matrix of portfolio returns
-h <- getRandomMatrix(20, 100)
-hist <- mp.density.kernel(h)
-
-# Fit an empirical distribution to a theoretical curve
-hint <- c(6,2)
-o <- optim(hint, mp.fit.kernel(hist))
 
 }

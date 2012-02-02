@@ -9,12 +9,12 @@
   then only one resultant weight vector will be returned).
 
   A number of preconfigured correlation matrix filters are available: 
-  getCorFilter.RMT for using random matrix theory, getCorFilter.Shrinkage 
+  RandomMatrixFilter for using random matrix theory, ShrinkageFilter 
   returns a function for filltering the correlation matrix using a shrinkage
   estimator. A raw version is provided for comparison. These functions provide
-  reasonable configurability, for example with getCorFilter.RMT, one can choose
+  reasonable configurability, for example with RandomMatrixFilter, one can choose
   whether a histogram or a kernel density estimator is used to calculate the
-  probability density function. With getCorFilter.Shrinkage one can select a
+  probability density function. With ShrinkageFilter one can select a
   constant correlation model or the identity as the model.
 }
 \usage{
@@ -43,7 +43,7 @@ optimizePortfolio(h, window, cor.gen, ...)
   In theory any compatible correlation matrix generator can be used (and has in
   practice to test against proprietary risk models) and the function will
   generate portfolio weights accordingly. To leverage the remainder of the
-  package, the \code{getCorFilter.RMT} function or \code{getCorFilter.Shrinkage}
+  package, the RandomMatrixFilter function or ShrinkageFilter
   should be called. These wrappers are somewhat superfluous but do provide 
   some utility by ensuring compatibility with the underlying RMT code that uses
   transposed matrices (pre-zoo integration). Additionally, by way of closures
@@ -72,15 +72,15 @@ optimizePortfolio(h, window, cor.gen, ...)
 tawny:::.init()
 
 data(sp500.subset)
-h <- sp500.subset
-ws <- optimizePortfolio(h, 190, getCorFilter.Sample() )
-ws <- optimizePortfolio(h, 190, getCorFilter.Raw() )
-ws <- optimizePortfolio(h, 190, getCorFilter.RMT() )
-ws <- optimizePortfolio(h, 190, getCorFilter.Shrinkage() )
+p <- create(TawnyPortfolio, sp500.subset, window=190)
+ws <- optimizePortfolio(p, create(SampleFilter) )
+ws <- optimizePortfolio(p, create(EmpiricalFilter) )
+ws <- optimizePortfolio(p, create(RandomMatrixFilter) )
+ws <- optimizePortfolio(p, create(ShrinkageFilter) )
 
 # This is computationally faster although the convenient approach is to pass
-# in the character symbol directly: getCorFilter.Shrinkage('^GSPC')
+# in the character symbol directly: ShrinkageFilter(market='^GSPC')
 m <- getPortfolioReturns('^GSPC', obs=1000, end='2009-02-27')
-ws <- optimizePortfolio(h, 190, getCorFilter.ShrinkageM(m) )
+ws <- optimizePortfolio(p, create(ShrinkageFilter, market=m) )
 }
 \keyword{ ts }

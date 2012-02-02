@@ -54,22 +54,25 @@ divergence %when% (p %hasa% returns)
 divergence %also% (algo %isa% KullbackLeibler & algo$measure=='information')
 divergence %as% function(p, count, filter, algo)
 {
+  logger(INFO, sprintf("Row names: %s", rownames(p$returns)))
   # Convert to matrix to allow duplicates
   h <- deform(p$returns,'matrix')
   if (is.null(p$window)) { p$window <- anylength(h) }
 
+  # This should just use rollapply on a TawnyPortfolio
   div <- function(junk, h.full)
   {
     h.window <- h.full[sample(index(h.full), p$window, replace=TRUE), ]
     c.sample <- cov2cor(cov.sample(h.window))
-    c.model <- filter(h.window)
+    p <- create(TawnyPortfolio, zoo(h.window, rownames(h.window)), p$window)
+    c.model <- filter(p)
 
     divergence <- divergence.kl(c.sample, c.model)
     return(divergence)
   }
   ds <- sapply(1:count, div, h)
 
-  theory <- divergence_lim(ncol(h), window, algo)
+  theory <- divergence_lim(ncol(h), p$window, algo)
   #cat("Theoretical divergence is",theory,"\n")
 
   return(c(mean=mean(ds, na.rm=TRUE), sd=sd(ds, na.rm=TRUE), limit=theory))

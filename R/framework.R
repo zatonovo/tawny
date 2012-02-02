@@ -27,7 +27,7 @@
 # Optimizes a returns series over a window.
 # s <- c('FCX','AAPL','JPM','AMZN','VMW','TLT','GLD','FXI','ILF','XOM')
 # p <- create(TawnyPortfolio, s)
-# ws <- optimizePortfolio(p, create(RandomMatrixEst))
+# ws <- optimizePortfolio(p, create(RandomMatrixFilter))
 optimizePortfolio %when% (p %isa% TawnyPortfolio)
 optimizePortfolio %as% function(p, estimator)
 {

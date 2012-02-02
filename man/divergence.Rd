@@ -35,7 +35,7 @@ plotDivergenceLimit.kl(m, t.range, ..., overlay = FALSE)
   \item{\dots}{ Additional parameters to pass to plot or lines }
 }
 \details{
-divergence(h, count, window = NULL, filter = getCorFilter.RMT(), measure = 'information')
+divergence(h, count, window = NULL, filter, measure = 'information')
 divergence_lim(m, t = NULL)
 stability_lim(m, t = NULL)
 

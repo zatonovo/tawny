@@ -14,7 +14,7 @@
 \description{
   This performs a covariance shrinkage estimation as specified in Ledoit and
   Wolf. Using within the larger framework only requires using the 
-  getCorFilter.Shrinkage function, which handles the work of constructing a
+  ShrinkageFilter type, which handles the work of constructing a
   shrinkage estimate of the covariance matrix of returns (and consequently its
   corresponding correlation matrix).
 }
