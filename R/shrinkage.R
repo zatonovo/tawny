@@ -110,6 +110,13 @@ cov_sample %as% function(returns)
   cov_sample(returns)
 }
 
+cov_sample %when% (returns %isa% matrix)
+cov_sample %as% function(returns)
+{
+  class(returns) <- c("AssetReturns",class(returns))
+  cov_sample(returns)
+}
+
 
 # Constant correlation target
 # S is sample covariance

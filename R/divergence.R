@@ -12,7 +12,19 @@
 #### TODO
 # Add %default% operator
 # Handle ... in default
-deform %when% (Type %isa% matrix)
+deform %when% (Type == 'matrix')
+deform %also% (object %isa% AssetReturns)
+deform %as% function(object, Type) # Auto number the functions
+{
+  col.names <- colnames(object)
+  row.names <- format(index(object), '%Y-%m-%d')
+  h <- matrix(object, ncol=ncol(object))
+  colnames(h) <- col.names
+  rownames(h) <- row.names
+  h
+}
+
+deform %when% (Type == 'matrix')
 deform %also% (object %isa% zoo)
 deform %as% function(object, Type) # Auto number the functions
 {
@@ -44,11 +56,11 @@ divergence %as% function(p, count, filter, algo)
 {
   # Convert to matrix to allow duplicates
   h <- deform(p$returns,'matrix')
-  if (is.null(window)) { window <- anylength(h) }
+  if (is.null(p$window)) { p$window <- anylength(h) }
 
   div <- function(junk, h.full)
   {
-    h.window <- h.full[sample(index(h.full), window, replace=TRUE), ]
+    h.window <- h.full[sample(index(h.full), p$window, replace=TRUE), ]
     c.sample <- cov2cor(cov.sample(h.window))
     c.model <- filter(h.window)
 
