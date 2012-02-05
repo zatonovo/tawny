@@ -57,6 +57,12 @@ plugged into the fitting function, and so on.
 
 For people interested in studying shrinkage estimation techniques, these 
 functions are primarily exposed as shrinkage.*.
+
+NOTE: This is an alpha release and the high-level portfolio functions have not 
+been fully ported nor tested.
+. Use PerformanceAnalytics for performance analysis
+. Clean up optimization workflow
+. Clean up back testing vs single day workflows
 }
 \author{
 Brian Lee Yung Rowe
@@ -104,7 +110,7 @@ ws <- optimizePortfolio(p, create(RandomMatrixFilter))
 #mf <- compare.Market('^GSPC',200,150, y.min=-0.4)
 
 # Generate weights based on the constant correlation shrinkage estimator
-ws <- optimizePortfolio(h, 150, create(ShrinkageFilter))
-pf <- plotPerformance(h, ws, 150, y.min=-0.4)
+ws <- optimizePortfolio(p, create(ShrinkageFilter))
+pf <- plotPerformance(p, ws)
 
 }

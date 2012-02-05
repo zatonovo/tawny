@@ -74,8 +74,8 @@ tawny:::.init()
 data(sp500.subset)
 ys <- create(TawnyPortfolio, sp500.subset, 150)
 ws <- optimizePortfolio(ys, create(RandomMatrixFilter))
-plotPerformance(ys, ws, 150)
-compare.EqualWeighted(ys, 150)
+plotPerformance(ys, ws)
+compare.EqualWeighted(ys)
 compare.Market('^GSPC', 200, 150)
 }
 \keyword{ ts }

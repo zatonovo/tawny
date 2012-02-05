@@ -99,20 +99,30 @@ optimizePortfolio %as% function(h, window, estimator, ...)
 # The weights are currently expected to be the same as the last date in the
 # window. Consequently, the weights necessarily are valid for T+1 at the 
 # earliest.
-plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
-  new.plot=TRUE, y.min=-0.25, y.max=0.25, bg=NULL,
-  name='', color='red', colors=c(), legend.loc='bottomright',...)
+plotPerformance %when% (p %isa% TawnyPortfolio)
+plotPerformance %also% (! p %hasa% rf.rate)
+plotPerformance %as% function(p, weights)
 {
-  if (is.null(window)) { window <- anylength(h) - anylength(weights) + 1 }
+  p$rf.rate <- 0.01
+  pars <- create(PlotPars, new.plot=TRUE, y.min=-0.25, y.max=0.25, bg=NULL,
+    name='portfolio', color='red', colors=c(), legend.loc='bottomright')
+  plotPerformance(p, weights, pars)
+}
 
-  if (! 'zoo' %in% class(h))
-  { logger(WARN,"Zoo objects are preferred for dimensional safety") }
+plotPerformance %when% (p %isa% TawnyPortfolio)
+plotPerformance %also% (p %hasa% rf.rate)
+plotPerformance %also% (pars %isa% PlotPars)
+plotPerformance %as% function(p, weights, pars)
+{
+  attach(pars)
+  window <- p$window
+  h <- p$returns
 
   if (anylength(h) != anylength(weights) + window - 1)
   { logger(WARN,"Dimensions are inconsistent. This can cause errors") }
 
   ts.rets <- portfolioReturns(h, weights)
-  stats <- portfolioPerformance(ts.rets, rf.rate)
+  stats <- portfolioPerformance(ts.rets, p$rf.rate)
 
   # Plot this output
   logger(TRACE, sprintf("y range = [%s,%s]",y.min,y.max))
@@ -128,14 +138,14 @@ plotPerformance <- function(h, weights, window=NULL, rf.rate=0.01,
   if (anylength(dev.list()) > 0 & new.plot & is.null(bg))
   {
     par(lab=c(7,7,7), new=new.plot)
-    lines(stats$cum.returns, col=color, ...)
+    lines(stats$cum.returns, col=color)
   }
   else
   {
     if (!is.null(bg)) par(bg=bg)
     par(lab=c(7,7,7))
     plot(stats$cum.returns,
-      type="l",col=color,ylim=yrange,ylab="Return",xlab="Time", ...);
+      type="l",col=color,ylim=yrange,ylab="Return",xlab="Time")
   }
 
   # Ignore line types for now
@@ -230,19 +240,25 @@ compare.Market <- function(market, obs, window, end=Sys.Date(), color='#44bc43',
   weights <-
     xts(matrix(1,ncol=1,nrow=w.count), order.by=index(tail(mkt.ret, w.count)))
 
-  plotPerformance(mkt.ret, weights, window, color=color, name='market', ...)
+  p <- create(TawnyPortfolio, mkt.ret, window, list(rf.rate=0.01))
+  pars <- create(PlotPars, color=color, name='market', ...)
+  plotPerformance(p, weights, pars)
 }
 
 # Compare the performance with an equal weighted portfolio
-# eq.perf <- compare.EqualWeighted(h, 100, y.min=-0.75)
-compare.EqualWeighted <- function(h, window, color='#342a31', ...)
+# eq.perf <- compare.EqualWeighted(p, y.min=-0.75)
+compare.EqualWeighted <- function(p, color='#342a31', ...)
 {
+  h <- p$returns
+  window <- p$window
   my.weights <- function(x) rep(1/ncol(x), ncol(x))
   weights <- xts(rollapply(h, window, my.weights, by.column=FALSE, align='right'), order.by=index(h[window:anylength(h)]))
   logger(INFO, sprintf("weights: [%s,%s]",as.Date(start(weights)),as.Date(end(weights))))
 
   #index(weights) <- index(h[window:anylength(h)])
-  plotPerformance(h, weights, window, color=color, name='naive', ...)
+  p$rf.rate <- 0.01
+  pars <- create(PlotPars, color=color, name='naive', ...)
+  plotPerformance(p, weights, pars)
 }
 
 
