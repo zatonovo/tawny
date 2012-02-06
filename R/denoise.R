@@ -51,13 +51,13 @@ denoise %as% function(p, estimator)
   #filter.RMT(p$returns, hint=estimator$hint)
   # Use either a fit based on the theoretical shape or use asymptotics for an
   # analytical solution
-  logger(INFO, "Estimating correlation matrix")
+  #logger(INFO, "Estimating correlation matrix")
   p$correlation <- estimator$cor.fn(p$returns)
-  logger(INFO, "Getting eigenvalues")
+  #logger(INFO, "Getting eigenvalues")
   es <- eigen(p$correlation, symmetric=TRUE, only.values=FALSE)
-  logger(INFO, "Applying cutoff")
+  #logger(INFO, "Applying cutoff")
   lambda.plus <- estimator$cutoff.fn(p$correlation, es, estimator)
-  logger(INFO, "Cleaning matrix")
+  #logger(INFO, "Cleaning matrix")
   estimator$clean.fn(es, lambda.plus)
 }
 
