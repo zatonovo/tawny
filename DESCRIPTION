@@ -2,7 +2,7 @@ Package: tawny
 Type: Package
 Title: Provides various portfolio optimization strategies including random matrix theory and shrinkage estimators
 Version: {version}
-Depends: R (>= 2.8.0), tawny.types (>= 1.0.0), futile.matrix (>= 1.1.0), futile.logger (>= 1.2.0), PerformanceAnalytics, zoo, xts, quantmod, RUnit
+Depends: R (>= 2.10.0), tawny.types (>= 1.0.0), futile.matrix (>= 1.1.0), futile.logger (>= 1.2.0), PerformanceAnalytics, zoo, xts, quantmod, RUnit
 Date: {date}
 Author: Brian Lee Yung Rowe
 Maintainer: Brian Lee Yung Rowe <r@nurometic.com>
