@@ -9,13 +9,12 @@
 # divergence(sp500.subset, 25, filter=getCorFilter.Shrinkage())
 # Can measure information (the default) or stability. Measuring stability will
 # resample twice to get two forms of the correlation matrix.
-#### TODO
-# Add %default% operator
-# Handle ... in default
-deform %when% (Type == 'matrix')
-deform %also% (object %isa% AssetReturns)
-deform %as% function(object, Type) # Auto number the functions
-{
+
+#### TODO - Rethink this API
+deform(object, type) %::% AssetReturns : character : matrix
+deform(object, type) %when% {
+  type == 'matrix'
+} %as% {
   col.names <- colnames(object)
   row.names <- format(index(object), '%Y-%m-%d')
   h <- matrix(object, ncol=ncol(object))
@@ -24,10 +23,10 @@ deform %as% function(object, Type) # Auto number the functions
   h
 }
 
-deform %when% (Type == 'matrix')
-deform %also% (object %isa% zoo)
-deform %as% function(object, Type) # Auto number the functions
-{
+deform(object, type) %::% zoo : character : matrix
+deform(object, type) %when% {
+  type == 'matrix'
+} %as% {
   col.names <- colnames(object)
   row.names <- format(index(object), '%Y-%m-%d')
   h <- matrix(object, ncol=ncol(object))
@@ -36,24 +35,25 @@ deform %as% function(object, Type) # Auto number the functions
   h
 }
 
-divergence %when% (ret %isa% zoo)
-divergence %as% function(ret, count, filter)
+divergence(ret, count, filter) %::% zoo : numeric : a : numeric
+divergence(ret, count, filter) %as%
 {
   p <- create(TawnyPortfolio, ret, nrow(ret))
   divergence(p, count, filter)
 }
 
-divergence %when% (p %hasa% returns)
-divergence %also% is.function(filter)
-divergence %as% function(p, count, filter)
-{
+divergence(p, count, filter) %when% {
+  p %hasa% returns
+  is.function(filter)
+} %as% {
   divergence(p, count, filter, create(KullbackLeibler, measure='information'))
 }
 
-divergence %when% (p %hasa% returns)
-divergence %also% (algo %isa% KullbackLeibler & algo$measure=='information')
-divergence %as% function(p, count, filter, algo)
-{
+divergence(p, count, filter, algo) %when% {
+  p %hasa% returns
+  algo %isa% KullbackLeibler
+  algo$measure=='information'
+} %as% {
   logger(INFO, sprintf("Row names: %s", rownames(p$returns)))
   # Convert to matrix to allow duplicates
   h <- deform(p$returns,'matrix')
@@ -116,7 +116,7 @@ divergence %as% function(p, count, filter, algo)
 # correlation matrix
 # Measuring stability averages all permutations of the KL divergence of two
 # instances of the filtered correlation matrix
-divergence.kl <- function(sigma.1, sigma.2)
+divergence.kl(sigma.1, sigma.2) %as%
 {
   term.1 <- log(det(sigma.2) / det(sigma.1))
   term.2 <- sum(diag(solve(sigma.2) %*% sigma.1))
@@ -125,14 +125,14 @@ divergence.kl <- function(sigma.1, sigma.2)
 
 # The expected value of the divergence for random matrices (sample versus 
 # true correlation matrix)
-divergence_lim %when% (model %isa% KullbackLeibler)
-divergence_lim %as% function(ps, model)
+divergence_lim(ps, model) %::% a : KullbackLeibler : a
+divergence_lim(ps, model) %as%
 {
   divergence_lim(ps[1], ps[2], model)
 }
 
-divergence_lim %when% (model %isa% KullbackLeibler)
-divergence_lim %as% function(m, t, model)
+divergence_lim(m, t, model) %::% a : a : KullbackLeibler : a
+divergence_lim(m, t, model) %as%
 {
   l <- t - m + 1
   0.5 * ( m * log(t/2) - sum(digamma((l:t)/2)) )
@@ -141,7 +141,7 @@ divergence_lim %as% function(m, t, model)
 # plotDivergenceLimit.kl(100, 80:499, col='green', ylim=c(0,55))
 # plotDivergenceLimit.kl(80, 80:499, col='orange', overlay=TRUE)
 # plotDivergenceLimit.kl(40, 80:499, col='red', overlay=TRUE)
-plotDivergenceLimit.kl <- function(m, t.range, ..., overlay=FALSE)
+plotDivergenceLimit.kl(m, t.range, ..., overlay=FALSE) %as%
 {
   model <- create(KullbackLeibler)
   ns <- rep(m,length(t.range))
@@ -161,20 +161,22 @@ plotDivergenceLimit.kl <- function(m, t.range, ..., overlay=FALSE)
 }
 
 # Limit for stability (distance between two sample correlation matrices)
-stability_lim %when% (model %isa% KullbackLeibler)
-stability_lim %as% function(m, t=NULL, model)
-{ 
-  if (is.null(t))
-  {
-    t <- m[2]
-    m <- m[1]
-  } 
+stability_lim(m, model) %::% a : KullbackLeibler : a
+stability_lim(m, model) %as%
+{
+  t <- m[2]
+  m <- m[1]
+  stability_lim(m, t, model)
+}
 
+stability_lim(m, t, model) %::% a : a : KullbackLeibler : a
+stability_lim(m, t, model) %as%
+{ 
   0.5 * m * (m+1) / (t - m - 1)
 }
 
 # Determine the stability of the filter.
-divergence.stability <- function(h, count, window, filter)
+divergence.stability(h, count, window, filter) %as%
 {
   if (is.null(window)) { window <- anylength(h) }
   # Convert to matrix to allow duplicates

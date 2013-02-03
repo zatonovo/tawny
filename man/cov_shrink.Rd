@@ -36,6 +36,7 @@ shrinkage.r(returns, sample, pi.est)
 shrinkage.c(prior, sample)
 
 cov.shrink(...)
+
 cov.sample(...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -49,17 +50,24 @@ cov.sample(...)
 }
 \details{
   cov_shrink(h, prior.fun = cov.prior.cc, ...)
+
   cov_shrink(h, T, constant.fun, prior.fun = cov.prior.cc, ...)
+
   cov_shrink(h, ...)
 
 
   cov_sample{...}
+
   cov_sample{returns}
+
   cov_sample{returns}
 
   T - Length of returns series used in scaling of shrinkage coefficient
+
   h - A generic tawny object representing either a returns, covariance, or correlation matrix
-  constant.fun -Use this function to calculate the shrinkage constant
+
+  constant.fun - Use this function to calculate the shrinkage constant
+
   prior.fun - Generates the prior/model covariance matrix 
 
   Most of the code related to the shrinkage estimator is tied to calculating a
@@ -83,16 +91,13 @@ cov.sample(...)
 \author{ Brian Lee Yung Rowe }
 \seealso{ \code{\link{tawny}}, \code{\link{optimizePortfolio}} }
 \examples{
-  # This is autorun outside of examples
-  tawny:::.init()
-
   # Estimate the covariance matrix based on the given asset returns
   data(sp500.subset)
-  ys <- create(TawnyPortfolio, sp500.subset, 150)
+  ys <- TawnyPortfolio(sp500.subset, 150)
   S.hat <- cov_shrink(ys)
 
   # Optimize the portfolio weights using the shrinkage estimator
-  ws <- optimizePortfolio(ys, create(ShrinkageFilter))
+  ws <- optimizePortfolio(ys, ShrinkageFilter())
   #plotPerformance(ys,ws, bg='white', name='Shrinkage')
 
   # Calculate the sample covariance matrix

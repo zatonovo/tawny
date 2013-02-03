@@ -68,19 +68,18 @@ optimizePortfolio(h, window, cor.gen, ...)
 }
 \author{ Brian Lee Yung Rowe}
 \examples{
-# This is autorun outside of examples
-tawny:::.init()
-
 data(sp500.subset)
 p <- create(TawnyPortfolio, sp500.subset, window=190)
-ws <- optimizePortfolio(p, create(SampleFilter) )
-ws <- optimizePortfolio(p, create(EmpiricalFilter) )
-ws <- optimizePortfolio(p, create(RandomMatrixFilter) )
-ws <- optimizePortfolio(p, create(ShrinkageFilter) )
+ws <- optimizePortfolio(p, SampleFilter() )
+ws <- optimizePortfolio(p, EmpiricalFilter() )
+ws <- optimizePortfolio(p, RandomMatrixFilter() )
+ws <- optimizePortfolio(p, ShrinkageFilter() )
 
+\dontrun{
 # This is computationally faster although the convenient approach is to pass
 # in the character symbol directly: ShrinkageFilter(market='^GSPC')
 m <- getPortfolioReturns('^GSPC', obs=1000, end='2009-02-27')
-ws <- optimizePortfolio(p, create(ShrinkageFilter, market=m) )
+ws <- optimizePortfolio(p, ShrinkageFilter(market=m) )
+}
 }
 \keyword{ ts }

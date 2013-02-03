@@ -15,29 +15,38 @@
 }
 \usage{
 divergence(...)
-divergence.kl(sigma.1, sigma.2)
+divergence.kl(...)
 divergence_lim(...)
 stability_lim(...)
-divergence.stability(h, count, window, filter)
-plotDivergenceLimit.kl(m, t.range, ..., overlay = FALSE)
+divergence.stability(...)
+plotDivergenceLimit.kl(...)
 }
 \arguments{
-  \item{h}{ A zoo object representing a portfolio with dimensions T x M }
-  \item{count}{ The number of bootstrap observations to create }
-  \item{window}{ The number of samples to include in each observation. Defaults to the anylength of h. }
-  \item{filter}{ The correlation filter to measure }
-  \item{sigma.1}{ The sample correlation matrix }
-  \item{sigma.2}{ The model correlation matrix (aka the filtered matrix) }
-  \item{m}{ The number of assets }
-  \item{t}{ The number of samples (dates) in an observation }
-  \item{t.range}{ A range of date samples. This can be a simple interval so long as it matches the number of samples per asset in the measured correlation matrix. }
-  \item{overlay}{ Overlay the divergence limit plot on an existing plot. Default is FALSE. }
   \item{\dots}{ Additional parameters to pass to plot or lines }
 }
 \details{
 divergence(h, count, window = NULL, filter, measure = 'information')
+
+divergence.kl(sigma.1, sigma.2)
+  sigma.1 - The sample correlation matrix
+  sigma.2 - The model correlation matrix (aka the filtered matrix)
+
 divergence_lim(m, t = NULL)
+
 stability_lim(m, t = NULL)
+
+divergence.stability(h, count, window, filter)
+  h - A zoo object representing a portfolio with dimensions T x M
+  count - The number of bootstrap observations to create
+  window - The number of samples to include in each observation. Defaults to the anylength of h.
+  filter - The correlation filter to measure
+  m - The number of assets
+  t - The number of samples (dates) in an observation
+
+plotDivergenceLimit.kl(m, t.range, ..., overlay = FALSE)
+  t.range - A range of date samples. This can be a simple interval so long as
+  it matches the number of samples per asset in the measured correlation matrix.
+  overlay - Overlay the divergence limit plot on an existing plot
 
 measure - The type of divergence to calculate. Possible choices are information (default) or stability.
 }
@@ -47,9 +56,6 @@ measure - The type of divergence to calculate. Possible choices are information 
 }
 \author{ Brian Lee Yung Rowe}
 \examples{
-# This is autorun outside of examples
-tawny:::.init()
-
 data(sp500.subset)
 h <- sp500.subset
 

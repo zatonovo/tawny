@@ -28,50 +28,51 @@
 # s <- c('FCX','AAPL','JPM','AMZN','VMW','TLT','GLD','FXI','ILF','XOM')
 # p <- create(TawnyPortfolio, s)
 # ws <- optimizePortfolio(p, create(RandomMatrixFilter))
-optimizePortfolio %when% (p %isa% TawnyPortfolio)
-optimizePortfolio %as% function(p, estimator)
+optimizePortfolio(p, estimator) %::% TawnyPortfolio : a : b
+optimizePortfolio(p, estimator) %as%
 {
+  flog.debug("[[1]]")
   optimizePortfolio(p, estimator, p.optimize)
 }
 
-optimizePortfolio %when% (p %isa% TawnyPortfolio)
-optimizePortfolio %as% function(p, estimator, optimizer)
+optimizePortfolio(p, estimator, optimizer) %::% TawnyPortfolio : a : b : c
+optimizePortfolio(p, estimator, optimizer) %as%
 {
+  flog.debug("[[2]]")
   my.optimizer <- function(p)
   {
-    logger(DEBUG, "Getting correlation matrix")
+    flog.debug("Getting correlation matrix")
     #cor.mat <- cor.gen(h.window, ...)
     cor.mat <- denoise(p, estimator)
 
-    logger(DEBUG, "Optimizing portfolio")
+    flog.debug("Optimizing portfolio")
     optimizer(p$returns, cor.mat)
   }
 
-  logger(INFO, sprintf("Optimizing portfolio for %s-%s",
-         format(start(p)), format(end(p)) ))
+  flog.info("Optimizing portfolio for [%s, %s]",
+         format(start(p)), format(end(p)) )
   ws <- rollapply(p, my.optimizer)
   xts(ws, order.by=as.Date(rownames(ws)))
 }
 
 # This is for backwards compatibility
-#optimizePortfolio <- function(h, window, cor.gen=getCorFilter.RMT(), ...)
-optimizePortfolio %when% TRUE
-optimizePortfolio %as% function(h, window, estimator, ...)
+optimizePortfolio(h, window, estimator, ...) %as%
 {
+  flog.debug("[[3]]")
   if (! 'zoo' %in% class(h))
-  { cat("WARNING: Zoo objects are preferred for dimensional safety\n") }
+  { flog.warn("Zoo objects are preferred for dimensional safety") }
 
   my.optimizer <- function(h.window)
   {
-    logger(DEBUG, "Getting correlation matrix")
+    flog.debug("Getting correlation matrix")
     #cor.mat <- cor.gen(h.window, ...)
     cor.mat <- denoise(h, estimator, ...)
 
-    logger(DEBUG, "Optimizing portfolio")
+    flog.debug("Optimizing portfolio")
     p.optimize(h.window, cor.mat)
   }
 
-  logger(INFO, sprintf("Optimizing portfolio for %s-%s",format(start(h)),format(end(h))))
+  flog.info("Optimizing portfolio for %s-%s",format(start(h)),format(end(h)))
   ws <- rollapply(h, window, my.optimizer, by.column=FALSE, align='right')
   xts(ws, order.by=index(ws))
 }
@@ -93,7 +94,7 @@ p.optimize <- function(h, c.denoised)
   try(c.inv <- solve(c.denoised))
   if (!exists('c.inv'))
   {
-    logger(WARN, "Unable to invert correlation matrix. Returning zeros.")
+    flog.warn("Unable to invert correlation matrix. Returning zeros.")
     return(rep(0, ncol(h)))
   }
 

@@ -52,9 +52,7 @@ ensure(serie, src = 'FRED', reload = FALSE, ...)
 \author{ Brian Lee Yung Rowe}
 \seealso{ \code{\link{tawny}} }
 \examples{
-# This is autorun outside of examples
-tawny:::.init()
-
+\dontrun{
 # Get a portfolio
 h <- getPortfolioReturns(c('A','AA','AAPL'), obs=150)
 
@@ -66,5 +64,6 @@ h <- getPortfolioReturns(getIndexComposition('^DJI'), obs=100, reload=TRUE)
 
 # Ensure that some assets exist
 ensure(c('K','JNPR'), src='yahoo')
+}
 }
 \keyword{ ts }

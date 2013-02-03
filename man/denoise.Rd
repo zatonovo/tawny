@@ -28,6 +28,7 @@ normalize(...)
 }
 \details{
 denoise(p, estimator)
+
 normalize(h)
 
 These are different implementations of the denoise function based on the 
@@ -39,19 +40,13 @@ A cleaned correlation matrix.
 \author{ Brian Lee Yung Rowe }
 \seealso{ \code{\link{tawny}}, \code{\link{optimizePortfolio}} }
 \examples{
-# This is autorun outside of examples
-tawny:::.init()
 data(sp500.subset)
 
 h <- sp500.subset
 p <- create(TawnyPortfolio, h, 150)
-r1 <- denoise(p, create(SampleFilter))
-
-r2 <- denoise(p, create(EmpiricalFilter))
-
-r3 <- denoise(p, create(ShrinkageFilter))
-
-r4 <- denoise(p, create(RandomMatrixFilter))
-
+r1 <- denoise(p, SampleFilter)
+r2 <- denoise(p, EmpiricalFilter)
+r3 <- denoise(p, ShrinkageFilter)
+r4 <- denoise(p, RandomMatrixFilter)
 }
 \keyword{ ts }
