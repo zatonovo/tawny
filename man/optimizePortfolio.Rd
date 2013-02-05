@@ -9,12 +9,12 @@
   then only one resultant weight vector will be returned).
 
   A number of preconfigured correlation matrix filters are available: 
-  RandomMatrixFilter for using random matrix theory, ShrinkageFilter 
+  RandomMatrixDenoiser for using random matrix theory, ShrinkageDenoiser 
   returns a function for filltering the correlation matrix using a shrinkage
   estimator. A raw version is provided for comparison. These functions provide
-  reasonable configurability, for example with RandomMatrixFilter, one can choose
+  reasonable configurability, for example with RandomMatrixDenoiser, one can choose
   whether a histogram or a kernel density estimator is used to calculate the
-  probability density function. With ShrinkageFilter one can select a
+  probability density function. With ShrinkageDenoiser one can select a
   constant correlation model or the identity as the model.
 }
 \usage{
@@ -43,7 +43,7 @@ optimizePortfolio(h, window, cor.gen, ...)
   In theory any compatible correlation matrix generator can be used (and has in
   practice to test against proprietary risk models) and the function will
   generate portfolio weights accordingly. To leverage the remainder of the
-  package, the RandomMatrixFilter function or ShrinkageFilter
+  package, the RandomMatrixDenoiser function or ShrinkageDenoiser
   should be called. These wrappers are somewhat superfluous but do provide 
   some utility by ensuring compatibility with the underlying RMT code that uses
   transposed matrices (pre-zoo integration). Additionally, by way of closures
@@ -69,17 +69,17 @@ optimizePortfolio(h, window, cor.gen, ...)
 \author{ Brian Lee Yung Rowe}
 \examples{
 data(sp500.subset)
-p <- create(TawnyPortfolio, sp500.subset, window=190)
-ws <- optimizePortfolio(p, SampleFilter() )
-ws <- optimizePortfolio(p, EmpiricalFilter() )
-ws <- optimizePortfolio(p, RandomMatrixFilter() )
-ws <- optimizePortfolio(p, ShrinkageFilter() )
+p <- TawnyPortfolio(sp500.subset, window=190)
+ws <- optimizePortfolio(p, SampleDenoiser() )
+ws <- optimizePortfolio(p, EmpiricalDenoiser() )
+ws <- optimizePortfolio(p, RandomMatrixDenoiser() )
+ws <- optimizePortfolio(p, ShrinkageDenoiser() )
 
 \dontrun{
 # This is computationally faster although the convenient approach is to pass
-# in the character symbol directly: ShrinkageFilter(market='^GSPC')
+# in the character symbol directly: ShrinkageDenoiser(market='^GSPC')
 m <- getPortfolioReturns('^GSPC', obs=1000, end='2009-02-27')
-ws <- optimizePortfolio(p, ShrinkageFilter(market=m) )
+ws <- optimizePortfolio(p, ShrinkageDenoiser(market=m) )
 }
 }
 \keyword{ ts }

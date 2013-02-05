@@ -14,7 +14,7 @@
 \description{
   This performs a covariance shrinkage estimation as specified in Ledoit and
   Wolf. Using within the larger framework only requires using the 
-  ShrinkageFilter type, which handles the work of constructing a
+  ShrinkageDenoiser type, which handles the work of constructing a
   shrinkage estimate of the covariance matrix of returns (and consequently its
   corresponding correlation matrix).
 }
@@ -97,7 +97,7 @@ cov.sample(...)
   S.hat <- cov_shrink(ys)
 
   # Optimize the portfolio weights using the shrinkage estimator
-  ws <- optimizePortfolio(ys, ShrinkageFilter())
+  ws <- optimizePortfolio(ys, ShrinkageDenoiser())
   #plotPerformance(ys,ws, bg='white', name='Shrinkage')
 
   # Calculate the sample covariance matrix

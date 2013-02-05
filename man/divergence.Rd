@@ -5,6 +5,7 @@
 \alias{divergence_lim}
 \alias{stability_lim}
 \alias{plotDivergenceLimit.kl}
+\alias{KullbackLeibler}
 \title{ Measure the divergence and stability between two correlation matrices }
 \description{
   The Kullback-Leibler distance function can be used to measure the divergence
@@ -61,8 +62,8 @@ h <- sp500.subset
 
 plotDivergenceLimit.kl(100, 80:499, col='green', ylim=c(0,55))
 
-divergence(h, 25, filter=function(x) denoise(x, create(RandomMatrixFilter)))
-divergence(h, 25, filter=function(x) denoise(x, create(ShrinkageFilter)))
+divergence(h, 25, filter=function(x) denoise(x, RandomMatrixDenoiser()))
+divergence(h, 25, filter=function(x) denoise(x, ShrinkageDenoiser()))
 
 }
 \keyword{ ts }

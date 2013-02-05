@@ -5,7 +5,7 @@
 
 
 # h <- getPortfolioReturns(getIndexComposition('^DJI'), obs=400, reload=TRUE)
-# ws <- optimizePortfolio(h, 350, getCorFilter.RMT() )
+# ws <- optimizePortfolio(h, 350, RandomMatrixDenoiser() )
 # pf <- plotPerformance(h, ws, 350, y.min=-0.4)
 # ef <- compare.EqualWeighted(h, 350, y.min=-0.4)
 # mf <- compare.Market('^GSPC',400,350, y.min=-0.4)
@@ -18,7 +18,7 @@
 #    'ORCL','YHOO','T','AAPL','GOOG','MSFT','IBM','CSCO','INTC',
 #    'GM','F','CAT','MMM','XOM','CVX','RIG','USO','ABX',
 #    'AMGN','HGSI','PFE','JNJ', 'FSLR','STP'), 150, reload=TRUE)
-#  c.gen <- getCorFilter.RMT(hint=c(4,1))
+#  c.gen <- getCorDenoiser.RMT(hint=c(4,1))
 #  weights <- optimizePortfolio(h, 100, c.gen)
 ## End(Not run)
 # NOTE: For zoo compatibility, need to use a t x m matrix for h
@@ -26,18 +26,20 @@
 
 # Optimizes a returns series over a window.
 # s <- c('FCX','AAPL','JPM','AMZN','VMW','TLT','GLD','FXI','ILF','XOM')
-# p <- create(TawnyPortfolio, s)
-# ws <- optimizePortfolio(p, create(RandomMatrixFilter))
-optimizePortfolio(p, estimator) %::% TawnyPortfolio : a : b
-optimizePortfolio(p, estimator) %as%
-{
+# p <- TawnyPortfolio(s)
+# ws <- optimizePortfolio(p, RandomMatrixDenoiser())
+#optimizePortfolio(p, estimator) %::% TawnyPortfolio : a : b
+optimizePortfolio(p, estimator) %when% {
+  p %isa% TawnyPortfolio
+} %as% {
   flog.debug("[[1]]")
   optimizePortfolio(p, estimator, p.optimize)
 }
 
-optimizePortfolio(p, estimator, optimizer) %::% TawnyPortfolio : a : b : c
-optimizePortfolio(p, estimator, optimizer) %as%
-{
+#optimizePortfolio(p, estimator, optimizer) %::% TawnyPortfolio : a : b : c
+optimizePortfolio(p, estimator, optimizer) %when% {
+  p %isa% TawnyPortfolio
+} %as% {
   flog.debug("[[2]]")
   my.optimizer <- function(p)
   {
@@ -59,22 +61,8 @@ optimizePortfolio(p, estimator, optimizer) %as%
 optimizePortfolio(h, window, estimator, ...) %as%
 {
   flog.debug("[[3]]")
-  if (! 'zoo' %in% class(h))
-  { flog.warn("Zoo objects are preferred for dimensional safety") }
-
-  my.optimizer <- function(h.window)
-  {
-    flog.debug("Getting correlation matrix")
-    #cor.mat <- cor.gen(h.window, ...)
-    cor.mat <- denoise(h, estimator, ...)
-
-    flog.debug("Optimizing portfolio")
-    p.optimize(h.window, cor.mat)
-  }
-
-  flog.info("Optimizing portfolio for %s-%s",format(start(h)),format(end(h)))
-  ws <- rollapply(h, window, my.optimizer, by.column=FALSE, align='right')
-  xts(ws, order.by=index(ws))
+  p <- TawnyPortfolio(h, window)
+  optimizePortfolio(p, estimator)
 }
 
 

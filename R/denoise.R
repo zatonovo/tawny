@@ -1,34 +1,34 @@
-# RandomMatrixFilters consist of three components:
+# RandomMatrixDenoisers consist of three components:
 # . cor.fn - A function
 # . cutoff.fn - A function
 # . clean.fn - A function
-RandomMatrixFilter(cor.fn=cor.empirical,
+RandomMatrixDenoiser(cor.fn=cor.empirical,
   cutoff.fn=cutoff, clean.fn=cor.clean, ...) %as%
 {
-  list(cor.fn=cor.fn, cutoff.fn=cutoff.fn, clean.fn=clean.fn, ...)
+  RandomMatrixFilter(cor.fn=cor.fn, cutoff.fn=cutoff.fn, clean.fn=clean.fn, ...)
 }
 
 # Specify market as a symbol if you want to shrink on residuals only
-ShrinkageFilter(prior.fun=cov.prior.cc, ...) %as%
+ShrinkageDenoiser(prior.fun=cov.prior.cc, ...) %as%
 {
   list(prior.fun=prior.fun, ...)
 }
 
-SampleFilter(...) %as% list(...)
-EmpiricalFilter(...) %as% list(...)
+SampleDenoiser(...) %as% list(...)
+EmpiricalDenoiser(...) %as% list(...)
 
 ################################### DENOISE ##################################
 # p <- TawnyPortfolio(h, 90)
-# denoise(p,SampleFilter())
-denoise(p, estimator) %::%  TawnyPortfolio : SampleFilter : matrix
+# denoise(p,SampleDenoiser())
+denoise(p, estimator) %::%  TawnyPortfolio : SampleDenoiser : matrix
 denoise(p, estimator) %as% 
 {
   cov2cor(cov.sample(p$returns))
 }
 
 # p <- TawnyPortfolio(h, 90)
-# denoise(p,EmpiricalFilter())
-denoise(p, estimator) %::%  TawnyPortfolio : EmpiricalFilter : matrix
+# denoise(p,EmpiricalDenoiser())
+denoise(p, estimator) %::%  TawnyPortfolio : EmpiricalDenoiser : matrix
 denoise(p, estimator) %as% 
 {
   cor.empirical(p$returns)
@@ -40,12 +40,12 @@ denoise(p, estimator) %as%
 #   Clean function
 #   
 # p <- create(TawnyPortfolio, h, 90)
-# denoise(p,create(RandomMatrixFilter))
+# denoise(p,create(RandomMatrixDenoiser))
 #
 # s <- c('FCX','AAPL','JPM','AMZN','VMW','TLT','GLD','FXI','ILF','XOM')
 # p <- TawnyPortfolio(s)
-# w <- rollapply(p, function(x) denoise(x, RandomMatrixFilter()))
-denoise(p, estimator) %::%  TawnyPortfolio : RandomMatrixFilter : matrix
+# w <- rollapply(p, function(x) denoise(x, RandomMatrixDenoiser()))
+denoise(p, estimator) %::%  TawnyPortfolio : RandomMatrixDenoiser : matrix
 denoise(p, estimator) %as% 
 {
   #filter.RMT(p$returns, hint=estimator$hint)
@@ -61,7 +61,7 @@ denoise(p, estimator) %as%
   estimator$clean.fn(es, lambda.plus)
 }
 
-denoise(p, estimator) %::%  TawnyPortfolio : ShrinkageFilter : matrix
+denoise(p, estimator) %::%  TawnyPortfolio : ShrinkageDenoiser : matrix
 denoise(p, estimator) %when% {
   estimator %hasa% market
 } %as% {
@@ -105,8 +105,8 @@ denoise(p, estimator) %when% {
 }
 
 # p <- TawnyPortfolio(h, 90)
-# denoise(p,ShrinkageFilter())
-denoise(p, estimator) %::%  TawnyPortfolio : ShrinkageFilter : matrix
+# denoise(p,ShrinkageDenoiser())
+denoise(p, estimator) %::%  TawnyPortfolio : ShrinkageDenoiser : matrix
 denoise(p, estimator) %as% 
 {
   cov2cor(cov_shrink(p$returns, prior.fun=estimator$prior.fun))
@@ -158,5 +158,10 @@ cor.empirical <- function(h)
 
 # Normalizes a returns matrix such that Var[xit] = 1.
 # Assumes TxM, m population, t observations
-normalize(h) %::% zoo : zoo
-normalize(h) %as% { apply(h, 2, function(x) x / sd(x)) }
+# Type constraint isn't working for inheritance
+#normalize(h) %::% zoo : zoo
+normalize(h) %when% {
+  h %isa% zoo
+} %as% {
+  apply(h, 2, function(x) x / sd(x))
+}

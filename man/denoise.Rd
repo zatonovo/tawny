@@ -1,12 +1,10 @@
 \name{denoise}
 \alias{denoise}
-\alias{create.RandomMatrixFilter}
-\alias{create.ShrinkageFilter}
 \alias{cor.clean}
 \alias{cor.empirical}
 \alias{normalize}
 \alias{deform} % TODO: Move this out
-\title{ Filter noise from a correlation matrix using RMT to identify the noise }
+\title{ Remove noise from a correlation matrix using RMT to identify the noise }
 \description{
   Used to filter out all eigenvalues below k*. At a later date this
   will become pluggable so other people can use their own functions and/or
@@ -43,10 +41,10 @@ A cleaned correlation matrix.
 data(sp500.subset)
 
 h <- sp500.subset
-p <- create(TawnyPortfolio, h, 150)
-r1 <- denoise(p, SampleFilter)
-r2 <- denoise(p, EmpiricalFilter)
-r3 <- denoise(p, ShrinkageFilter)
-r4 <- denoise(p, RandomMatrixFilter)
+p <- TawnyPortfolio(h, 150)
+r1 <- denoise(p, SampleDenoiser())
+r2 <- denoise(p, EmpiricalDenoiser())
+r3 <- denoise(p, ShrinkageDenoiser())
+r4 <- denoise(p, RandomMatrixDenoiser())
 }
 \keyword{ ts }

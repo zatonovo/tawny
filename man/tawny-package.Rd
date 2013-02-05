@@ -1,10 +1,10 @@
 \name{tawny-package}
 \alias{tawny-package}
 \alias{tawny}
-\alias{EmpiricalFilter}
-\alias{SampleFilter}
-\alias{RandomMatrixFilter}
-\alias{ShrinkageFilter}
+\alias{EmpiricalDenoiser}
+\alias{SampleDenoiser}
+\alias{RandomMatrixDenoiser}
+\alias{ShrinkageDenoiser}
 \docType{package}
 \title{
   Provides various portfolio optimization strategies including random matrix 
@@ -102,14 +102,14 @@ p <- TawnyPortfolio(h, 150)
 b <- BenchmarkPortfolio('^GSPC', 150, nrow(h), end=end(h))
 
 # Optimize using a window of length 200 (there will be 51 total iterations)
-ws <- optimizePortfolio(p, RandomMatrixFilter())
+ws <- optimizePortfolio(p, RandomMatrixDenoiser())
 rs <- PortfolioReturns(p, ws)
 o <- zoo(cbind(portfolio=rs, benchmark=b$returns), index(rs))
 charts.PerformanceSummary(o)
 
 
 # Generate weights based on the constant correlation shrinkage estimator
-ws <- optimizePortfolio(p, ShrinkageFilter())
+ws <- optimizePortfolio(p, ShrinkageDenoiser())
 rs <- PortfolioReturns(p, ws)
 o <- zoo(cbind(portfolio=rs, benchmark=b$returns), index(rs))
 charts.PerformanceSummary(o)

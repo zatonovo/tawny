@@ -5,8 +5,8 @@
 # count - number of observations to create
 # filter - function to apply
 # replace - whether to use replacement in bootstrapping
-# divergence(sp500.subset, 25, filter=getCorFilter.RMT())
-# divergence(sp500.subset, 25, filter=getCorFilter.Shrinkage())
+# divergence(sp500.subset, 25, filter=RandomMatrixDenoiser())
+# divergence(sp500.subset, 25, filter=ShrinkageDenoiser())
 # Can measure information (the default) or stability. Measuring stability will
 # resample twice to get two forms of the correlation matrix.
 
@@ -35,10 +35,12 @@ deform(object, type) %when% {
   h
 }
 
-divergence(ret, count, filter) %::% zoo : numeric : a : numeric
-divergence(ret, count, filter) %as%
-{
-  p <- create(TawnyPortfolio, ret, nrow(ret))
+KullbackLeibler(...) %as% { list(...) }
+
+divergence(ret, count, filter) %when% {
+  ret %isa% zoo
+} %as% {
+  p <- TawnyPortfolio(ret, as.numeric(nrow(ret)))
   divergence(p, count, filter)
 }
 
@@ -46,7 +48,7 @@ divergence(p, count, filter) %when% {
   p %hasa% returns
   is.function(filter)
 } %as% {
-  divergence(p, count, filter, create(KullbackLeibler, measure='information'))
+  divergence(p, count, filter, KullbackLeibler(measure='information'))
 }
 
 divergence(p, count, filter, algo) %when% {
@@ -54,7 +56,7 @@ divergence(p, count, filter, algo) %when% {
   algo %isa% KullbackLeibler
   algo$measure=='information'
 } %as% {
-  logger(INFO, sprintf("Row names: %s", rownames(p$returns)))
+  flog.debug("Row names: %s", rownames(p$returns))
   # Convert to matrix to allow duplicates
   h <- deform(p$returns,'matrix')
   if (is.null(p$window)) { p$window <- anylength(h) }
@@ -64,7 +66,7 @@ divergence(p, count, filter, algo) %when% {
   {
     h.window <- h.full[sample(index(h.full), p$window, replace=TRUE), ]
     c.sample <- cov2cor(cov.sample(h.window))
-    p <- create(TawnyPortfolio, zoo(h.window, rownames(h.window)), p$window)
+    p <- TawnyPortfolio(zoo(h.window, rownames(h.window)), p$window)
     c.model <- filter(p)
 
     divergence <- divergence.kl(c.sample, c.model)
@@ -73,7 +75,7 @@ divergence(p, count, filter, algo) %when% {
   ds <- sapply(1:count, div, h)
 
   theory <- divergence_lim(ncol(h), p$window, algo)
-  #cat("Theoretical divergence is",theory,"\n")
+  flog.trace("Theoretical divergence is %s",theory)
 
   return(c(mean=mean(ds, na.rm=TRUE), sd=sd(ds, na.rm=TRUE), limit=theory))
 }
@@ -125,15 +127,15 @@ divergence.kl(sigma.1, sigma.2) %as%
 
 # The expected value of the divergence for random matrices (sample versus 
 # true correlation matrix)
-divergence_lim(ps, model) %::% a : KullbackLeibler : a
-divergence_lim(ps, model) %as%
-{
+divergence_lim(ps, model) %when% {
+  model %isa% KullbackLeibler
+} %as% {
   divergence_lim(ps[1], ps[2], model)
 }
 
-divergence_lim(m, t, model) %::% a : a : KullbackLeibler : a
-divergence_lim(m, t, model) %as%
-{
+divergence_lim(m, t, model) %when% {
+  model %isa% KullbackLeibler
+} %as% {
   l <- t - m + 1
   0.5 * ( m * log(t/2) - sum(digamma((l:t)/2)) )
 }
@@ -143,7 +145,7 @@ divergence_lim(m, t, model) %as%
 # plotDivergenceLimit.kl(40, 80:499, col='red', overlay=TRUE)
 plotDivergenceLimit.kl(m, t.range, ..., overlay=FALSE) %as%
 {
-  model <- create(KullbackLeibler)
+  model <- KullbackLeibler()
   ns <- rep(m,length(t.range))
   limit <- apply(matrix(c(ns, t.range), ncol=2), 1, 
     function(m) divergence_lim(m, model))
