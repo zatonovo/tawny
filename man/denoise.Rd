@@ -42,8 +42,8 @@ data(sp500.subset)
 
 h <- sp500.subset
 p <- TawnyPortfolio(h, 150)
-r1 <- denoise(p, SampleDenoiser())
-r2 <- denoise(p, EmpiricalDenoiser())
+r1 <- denoise(p, 'sample')
+r2 <- denoise(p, 'empirical')
 r3 <- denoise(p, ShrinkageDenoiser())
 r4 <- denoise(p, RandomMatrixDenoiser())
 }

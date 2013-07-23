@@ -18,11 +18,23 @@ SampleDenoiser(...) %as% list(...)
 EmpiricalDenoiser(...) %as% list(...)
 
 ################################### DENOISE ##################################
+denoise(p, estimator) %::% TawnyPortfolio : character : matrix
+denoise(p, 'sample') %as% 
+{
+  cov2cor(cov.sample(p$returns))
+}
+
+denoise(p, 'empirical') %as% 
+{
+  cor.empirical(p$returns)
+}
+
 # p <- TawnyPortfolio(h, 90)
 # denoise(p,SampleDenoiser())
-denoise(p, estimator) %::%  TawnyPortfolio : SampleDenoiser : matrix
+denoise(p, estimator) %::% TawnyPortfolio : SampleDenoiser : matrix
 denoise(p, estimator) %as% 
 {
+  flog.warn("This is deprecated. Use denoise(p, 'sample') instead")
   cov2cor(cov.sample(p$returns))
 }
 
@@ -31,8 +43,10 @@ denoise(p, estimator) %as%
 denoise(p, estimator) %::%  TawnyPortfolio : EmpiricalDenoiser : matrix
 denoise(p, estimator) %as% 
 {
+  flog.warn("This is deprecated. Use denoise(p, 'empirical') instead")
   cor.empirical(p$returns)
 }
+
 
 # Customizations:
 #   Starting correlation matrix
@@ -53,12 +67,7 @@ denoise(p, estimator) %as%
   # analytical solution
   flog.trace("Estimating correlation matrix")
   p$correlation <- estimator$cor.fn(p$returns)
-  flog.trace("Getting eigenvalues")
-  es <- eigen(p$correlation, symmetric=TRUE, only.values=FALSE)
-  flog.trace("Applying cutoff")
-  lambda.plus <- estimator$cutoff.fn(p$correlation, es, estimator)
-  flog.trace("Cleaning matrix")
-  estimator$clean.fn(es, lambda.plus)
+  denoise(p$correlation, estimator)
 }
 
 denoise(p, estimator) %::%  TawnyPortfolio : ShrinkageDenoiser : matrix
@@ -101,7 +110,7 @@ denoise(p, estimator) %when% {
   h <- h - t(betas * mkt)
 
 
-  cov2cor(cov.shrink(h, prior.fun=prior.fun, ...))
+  cov2cor(cov.shrink(h, prior.fun=estimator$prior.fun, ...))
 }
 
 # p <- TawnyPortfolio(h, 90)
@@ -112,6 +121,21 @@ denoise(p, estimator) %as%
   cov2cor(cov_shrink(p$returns, prior.fun=estimator$prior.fun))
 }
 
+
+denoise(cor.mat, estimator) %::% matrix : RandomMatrixDenoiser : matrix
+denoise(cor.mat, estimator) %as% {
+  flog.trace("Getting eigenvalues")
+  es <- eigen(cor.mat, symmetric=TRUE, only.values=FALSE)
+  flog.trace("Applying cutoff")
+  lambda.plus <- estimator$cutoff.fn(cor.mat, es, estimator)
+  flog.trace("Cleaning matrix")
+  estimator$clean.fn(es, lambda.plus)
+}
+
+denoise(cov.mat, estimator) %::% matrix : ShrinkageDenoiser : matrix
+denoise(cov.mat, estimator) %as% {
+  cov_shrink(cov.mat, prior.fun=estimator$prior.fun, ...)
+}
 
 ##------------------------ CORRELATION MATRIX FUNCTIONS ---------------------##
 # Clean a correlation matrix based on calculated value of lambda.plus and the
