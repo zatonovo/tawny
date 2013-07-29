@@ -1,28 +1,4 @@
-# Look at rmetrics.org
-#library(PerformanceAnalytics)
-#library(futile)
-#library(zoo)
-#library(quantmod)
-
-# Assign a class to the given object
-# If h is not square, then assume it is returns
-# If h has values > 1, assume covariance matrix of returns
-# Else assume correlation matrix of returns
-# OBSOLETE in 2.0
-#classify <- function(x)
-#{
-#  if (is.null(dim(x))) stop("h must have a dim attribute")
-#
-#  tawny.types <- c('returns','covariance','correlation')
-#  if (any(tawny.types %in% class(x))) invisible(x)
-#
-#  if (ncol(x) != nrow(x)) class(x) <- c(class(x), 'returns')
-#  else if (max(x) > 1) class(x) <- c(class(x), 'covariance')
-#  else class(x) <- c(class(x), 'correlation')
-#  invisible(x)
-#}
-
-
+# :vim set filetype=R
 
 ##---------------------------- PUBLIC FUNCTIONS -----------------------------##
 # Optimize a portfolio using the specified portfolio generator and correlation
@@ -112,6 +88,9 @@ getIndexComposition <- function(ticker='^GSPC', hint=NA, src='yahoo')
 # TODO: 
 #  Fix names
 #  Add method to add other portfolio elements (such as synthetic securities)
+#' @examples
+#' # Get prices instead
+#' prices <- getPortfolioReturns(assets, 250, fun=function(x) Cl(x))
 getPortfolioReturns <- function(symbols, obs=NULL, start=NULL, end=Sys.Date(),
   fun=function(x) Delt(Cl(x)), reload=FALSE, na.value=NA, ...)
 {
