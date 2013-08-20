@@ -11,36 +11,14 @@
 # mf <- compare.Market('^GSPC',400,350, y.min=-0.4)
 
 
-# Example
-#  h <- getPortfolioReturns(c('MER','C','GS','MS','BAC','AAPL','GOOG','MSFT','IBM','CSCO'),150)
-## Not run:
-#  h <- getPortfolioReturns(c('MER','C','GS','MS','BAC','WFC',
-#    'ORCL','YHOO','T','AAPL','GOOG','MSFT','IBM','CSCO','INTC',
-#    'GM','F','CAT','MMM','XOM','CVX','RIG','USO','ABX',
-#    'AMGN','HGSI','PFE','JNJ', 'FSLR','STP'), 150, reload=TRUE)
-#  c.gen <- getCorDenoiser.RMT(hint=c(4,1))
-#  weights <- optimizePortfolio(h, 100, c.gen)
-## End(Not run)
-# NOTE: For zoo compatibility, need to use a t x m matrix for h
-# Attempls to dispatch based on characteristics of h.
 
 # Optimizes a returns series over a window.
 # s <- c('FCX','AAPL','JPM','AMZN','VMW','TLT','GLD','FXI','ILF','XOM')
 # p <- TawnyPortfolio(s)
 # ws <- optimizePortfolio(p, RandomMatrixDenoiser())
-#optimizePortfolio(p, estimator) %::% TawnyPortfolio : a : b
-optimizePortfolio(p, estimator) %when% {
-  p %isa% TawnyPortfolio
-} %as% {
-  flog.debug("[[1]]")
-  optimizePortfolio(p, estimator, p.optimize)
-}
 
-#optimizePortfolio(p, estimator, optimizer) %::% TawnyPortfolio : a : b : c
-optimizePortfolio(p, estimator, optimizer) %when% {
-  p %isa% TawnyPortfolio
-} %as% {
-  flog.debug("[[2]]")
+optimizePortfolio(p, estimator, optimizer) %::% TawnyPortfolio : a : Function : z
+optimizePortfolio(p, estimator, optimizer=p.optimize) %as% {
   my.optimizer <- function(p)
   {
     flog.debug("Getting correlation matrix")
@@ -60,7 +38,7 @@ optimizePortfolio(p, estimator, optimizer) %when% {
 # This is for backwards compatibility
 optimizePortfolio(h, window, estimator, ...) %as%
 {
-  flog.debug("[[3]]")
+  flog.info("Note: This interface is deprecated")
   p <- TawnyPortfolio(h, window)
   optimizePortfolio(p, estimator)
 }

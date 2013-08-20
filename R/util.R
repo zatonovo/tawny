@@ -107,7 +107,7 @@ getPortfolioReturns <- function(symbols, obs=NULL, start=NULL, end=Sys.Date(),
   p <- xts(order.by=end)
   for (s in symbols)
   {
-    asset <- getSymbols(s, from=start, to=end, auto.assign=FALSE)
+    asset <- getSymbols(s, from=start, to=end, auto.assign=FALSE, ...)
     raw <- fun(asset)
     flog.info("Binding %s for [%s,%s]",s, format(start(raw)),format(end(raw)))
       
