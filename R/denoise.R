@@ -1,9 +1,12 @@
+# This is to reduce explicit namespace imports
+.cutoff <- function(...) cutoff(...)
+
 # RandomMatrixDenoisers consist of three components:
 # . cor.fn - A function
 # . cutoff.fn - A function
 # . clean.fn - A function
 RandomMatrixDenoiser(cor.fn=cor.empirical,
-  cutoff.fn=cutoff, clean.fn=cor.clean, ...) %as%
+  cutoff.fn=.cutoff, clean.fn=cor.clean, ...) %as%
 {
   RandomMatrixFilter(cor.fn=cor.fn, cutoff.fn=cutoff.fn, clean.fn=clean.fn, ...)
 }
@@ -18,6 +21,13 @@ SampleDenoiser(...) %as% list(...)
 EmpiricalDenoiser(...) %as% list(...)
 
 ################################### DENOISE ##################################
+denoise(df, estimator) %::% data.frame : Denoiser : matrix
+denoise(df, estimator) %as%
+{
+
+}
+
+
 # p <- TawnyPortfolio(h, 90)
 # denoise(p,SampleDenoiser())
 denoise(p, estimator) %::%  TawnyPortfolio : SampleDenoiser : matrix
@@ -109,7 +119,18 @@ denoise(p, estimator) %when% {
 denoise(p, estimator) %::%  TawnyPortfolio : ShrinkageDenoiser : matrix
 denoise(p, estimator) %as% 
 {
-  cov2cor(cov_shrink(p$returns, prior.fun=estimator$prior.fun))
+  cov2cor(cov.shrink(p$returns, prior.fun=estimator$prior.fun))
+}
+
+
+denoise(h, estimator) %::% a : RandomMatrixDenoiser : matrix
+denoise(h, estimator) %as%
+{
+}
+
+denoise(h, estimator) %::% a : ShrinkageDenoiser : matrix
+denoise(h, estimator) %as%
+{
 }
 
 
@@ -158,10 +179,8 @@ cor.empirical <- function(h)
 
 # Normalizes a returns matrix such that Var[xit] = 1.
 # Assumes TxM, m population, t observations
-# Type constraint isn't working for inheritance
-#normalize(h) %::% zoo : zoo
 normalize(h) %when% {
-  h %isa% zoo
+  ! is.null(dim(h))
 } %as% {
   apply(h, 2, function(x) x / sd(x))
 }

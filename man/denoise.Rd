@@ -38,6 +38,7 @@ A cleaned correlation matrix.
 \author{ Brian Lee Yung Rowe }
 \seealso{ \code{\link{tawny}}, \code{\link{optimizePortfolio}} }
 \examples{
+\dontrun{
 data(sp500.subset)
 
 h <- sp500.subset
@@ -46,5 +47,6 @@ r1 <- denoise(p, SampleDenoiser())
 r2 <- denoise(p, EmpiricalDenoiser())
 r3 <- denoise(p, ShrinkageDenoiser())
 r4 <- denoise(p, RandomMatrixDenoiser())
+}
 }
 \keyword{ ts }

@@ -68,7 +68,9 @@ optimizePortfolio(h, window, cor.gen, ...)
 }
 \author{ Brian Lee Yung Rowe}
 \examples{
+require(tawny.types)
 data(sp500.subset)
+
 p <- TawnyPortfolio(sp500.subset, window=190)
 ws <- optimizePortfolio(p, SampleDenoiser() )
 ws <- optimizePortfolio(p, EmpiricalDenoiser() )

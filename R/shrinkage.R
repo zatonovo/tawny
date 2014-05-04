@@ -1,6 +1,8 @@
 # Perform shrinkage on a sample covariance towards a biased covariance
 # Author: Brian Lee Yung Rowe
 #
+# Examples
+# 
 
 ############################### PUBLIC METHODS ##############################
 # Shrink the sample covariance matrix towards the model covariance matrix for
@@ -12,74 +14,39 @@
 # Example
 #   S.hat <- cov_shrink(ys)
 
-cov_shrink(h) %::% TawnyPortfolio : matrix
-cov_shrink(h) %as%
-{
-  cov_shrink(h$returns)
-}
+cov.shrink(h) %::% TawnyPortfolio : matrix
+cov.shrink(h) %as% { cov.shrink(h$returns) }
 
-cov_shrink(h) %::% AssetReturns : matrix
-cov_shrink(h) %as%
+# This is a general interface for shrinking
+cov.shrink(h, prior.fun) %::% a : Function : matrix
+cov.shrink(h, prior.fun=cov.prior.cc) %as%
 {
-  cov_shrink(h, prior.fun=cov.prior.cc)
-}
-
-cov_shrink(h, prior.fun) %::% AssetReturns : a : matrix
-cov_shrink(h, prior.fun) %as%
-{
-  S <- cov_sample(h)
+  S <- cov.sample(h)
 
   T <- nrow(h)
   F <- prior.fun(S)
   k <- shrinkage.intensity(h, F, S)
   d <- max(0, min(k/T, 1))
 
-  flog.info("Got intensity k = %s and coefficient d = %s",k,d)
+  flog.trace("Got intensity k = %s and coefficient d = %s",k,d)
 
   S.hat <- d * F + (1 - d) * S
   S.hat
 }
 
-# For backwards compatibility
-cov_shrink(h) %::% zoo : matrix
-cov_shrink(h) %as%
-{
-  class(h) <- c("AssetReturns", class(h))
-  cov_shrink(h, prior.fun=cov.prior.cc)
-}
-
-cov_shrink(h, prior.fun) %::% zoo : a : matrix
-cov_shrink(h, prior.fun) %as%
-{
-  class(h) <- c("AssetReturns", class(h))
-  cov_shrink(h, prior.fun=prior.fun)
-}
-
-
-cov_shrink(h) %::% CorrelationMatrix : matrix
-cov_shrink(h) %as%
-{
-  stop("Shrinkage on correlation matrix is not supported.")
-}
 
 # Estimate the covariance matrix using the specified constant.fun for 
 # determining the shrinkage constant. The constant.fun is passed two 
 # parameters - the sample covariance matrix and the number of rows (T) in the 
 # original returns stream.
-cov_shrink(h, T, constant.fun) %::% CovarianceMatrix : numeric : a : matrix
-cov_shrink(h, T, constant.fun) %as%
-{
-  cov_shrink(h,T,constant.fun, prior.fun=cov.prior.cc)
-}
-
-cov_shrink(h, T, constant.fun, prior.fun) %::% CovarianceMatrix : numeric : a : a : matrix
-cov_shrink(h, T, constant.fun, prior.fun) %as%
+cov.shrink(m, T, constant.fun, prior.fun) %::% matrix : numeric : Function : Function : matrix
+cov.shrink(m, T, constant.fun, prior.fun=cov.prior.cc) %as%
 {
   S <- h
   F <- prior.fun(S)
   d <- constant.fun(S, T)
 
-  logger(INFO, sprintf("Got coefficient d = %s",d))
+  flog.trace("Got coefficient d = %s",d)
 
   S.hat <- d * F + (1 - d) * S
   S.hat
@@ -91,33 +58,26 @@ cov_shrink(h, T, constant.fun, prior.fun) %as%
 # Returns a T x N returns matrix (preferably zoo/xts)
 # p.cov <- cov.sample(p)
 
-cov_sample(returns) %::% AssetReturns : matrix
-cov_sample(returns) %as%
+cov.sample(returns) %::% AssetReturns : matrix
+cov.sample(returns) %as%
 {
   # X is N x T
   T <- nrow(returns)
   X <- t(returns)
   ones <- rep(1,T)
   S <- (1/T) * X %*% (diag(T) - 1/T * (ones %o% ones) ) %*% t(X)
-  class(S) <- c(class(S), 'covariance')
-  S
+  Covariance(S)
 }
 
-cov_sample(returns) %::% zoo : matrix
-cov_sample(returns) %as%
+cov.sample(x) %::% a : matrix
+cov.sample(x) %as%
 {
-  class(returns) <- c("AssetReturns",class(returns))
-  cov_sample(returns)
-}
-
-cov_sample(returns) %::% matrix : matrix
-cov_sample(returns) %as%
-{
-  class(returns) <- c("AssetReturns",class(returns))
-  cov_sample(returns)
+  cov(x)
 }
 
 
+
+##############################################################################
 # Constant correlation target
 # S is sample covariance
 cov.prior.cc <- function(S)
@@ -182,34 +142,6 @@ shrinkage.p <- function(returns, sample)
 }
 
 
-#shrinkage.p.old <- function(returns, sample)
-#{
-#  N <- ncol(returns)
-#  T <- nrow(returns)
-#  ones <- rep(1,T)
-#  means <- t(returns) %*% ones / T
-#  ys.xs <- returns - matrix(rep(t(means), T), ncol=N)
-#
-#  element.sum <- function(ij)
-#  {
-#    i <- ij[1]; j <- ij[2]
-#    element.ts <- (ys.xs[,i] * ys.xs[,j] - sample[i,j]) ^ 2
-#    sum(element.ts, na.rm=TRUE) / T
-#  }
-#  
-#  p.sum <- matrix(nrow=N, ncol=N)
-#  p.sum[upper.tri(p.sum)] <- combn(N,2, element.sum)
-#  p.diags <- apply(matrix(1:N, ncol=2, nrow=N), 1, element.sum)
-#
-#  pi.est <- list()
-#  pi.est$sum <- sum(p.sum, na.rm=TRUE) * 2 + sum(p.diags, na.rm=TRUE)
-#  pi.est$diags <- p.diags
-#
-#  #ijs <- expand.grid(i=1:N, j=1:N)
-#  #sum(apply(ijs, 1, element.sum), na.rm=TRUE)
-#  pi.est
-#}
-
 
 # Estimation for rho when using a constant correlation target
 # returns : stock returns
@@ -256,6 +188,6 @@ shrinkage.c <- function(prior, sample)
 }
 
 ##-------------------------------- DEPRECATED -------------------------------##
-cov.sample <- function(...) cov_sample(...)
+cov_sample <- function(...) cov.sample(...)
 
-cov.shrink <- function(...) cov_shrink(...)
+cov_shrink <- function(...) cov.shrink(...)

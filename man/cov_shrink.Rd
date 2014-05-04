@@ -91,6 +91,7 @@ cov.sample(...)
 \author{ Brian Lee Yung Rowe }
 \seealso{ \code{\link{tawny}}, \code{\link{optimizePortfolio}} }
 \examples{
+  require(tawny.types)
   # Estimate the covariance matrix based on the given asset returns
   data(sp500.subset)
   ys <- TawnyPortfolio(sp500.subset, 150)
@@ -98,13 +99,12 @@ cov.sample(...)
 
   # Optimize the portfolio weights using the shrinkage estimator
   ws <- optimizePortfolio(ys, ShrinkageDenoiser())
-  #plotPerformance(ys,ws, bg='white', name='Shrinkage')
 
   # Calculate the sample covariance matrix
-  #S <- cov.sample(ys)
+  S <- cov.sample(ys$returns)
 
   # Calculate the shrinkage coefficient
-  #F <- cov.prior.cc(S)
-  #k <- shrinkage.intensity(ys, F, S)
+  F <- cov.prior.cc(S)
+  k <- shrinkage.intensity(ys$returns, F, S)
 }
 \keyword{ ts }
