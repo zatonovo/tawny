@@ -23,8 +23,13 @@ install:
   - R --vanilla -e '.libPaths(); sessionInfo()'
   - R --vanilla -e 'options(repos = c("http://rforge.net", "http://cran.rstudio.org"))'
       -e 'install.packages(c("devtools","testthat","futile.options"))'
+      -e 'install.packages(c("zoo","xts","quantmod","PerformanceAnalytics"))'
       -e 'library(devtools)'
       -e 'install_github("lambda.r","zatonovo")'
+      -e 'install_github("lambda.tools","zatonovo")'
+      -e 'install_github("futile.logger","zatonovo")'
+      -e 'install_github("futile.matrix","zatonovo")'
+      -e 'install_github("tawny.types","zatonovo")'
       -e 'install()'
   - git clone https://github.com/muxspace/crant.git ~/crant
 
