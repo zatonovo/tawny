@@ -4,6 +4,11 @@
 \alias{cor.empirical}
 \alias{normalize}
 \alias{deform} % TODO: Move this out
+\alias{Denoiser}
+\alias{EmpiricalDenoiser}
+\alias{SampleDenoiser}
+\alias{RandomMatrixDenoiser}
+\alias{ShrinkageDenoiser}
 \title{ Remove noise from a correlation matrix using RMT to identify the noise }
 \description{
   Used to filter out all eigenvalues below k*. At a later date this

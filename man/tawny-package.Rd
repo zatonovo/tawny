@@ -1,10 +1,6 @@
 \name{tawny-package}
 \alias{tawny-package}
 \alias{tawny}
-\alias{EmpiricalDenoiser}
-\alias{SampleDenoiser}
-\alias{RandomMatrixDenoiser}
-\alias{ShrinkageDenoiser}
 \docType{package}
 \title{
   Provides various portfolio optimization strategies including random matrix 
