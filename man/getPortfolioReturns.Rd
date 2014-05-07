@@ -17,7 +17,10 @@
 }
 \usage{
 getIndexComposition(ticker = '^GSPC', hint = NA, src = 'yahoo')
-getPortfolioReturns(symbols, obs = NULL, start = NULL, end = Sys.Date(), fun = function(x) Delt(Cl(x)), reload = FALSE, na.value = NA, ...)
+
+getPortfolioReturns(symbols, obs = NULL, start = NULL, end = Sys.Date(),
+  fun = function(x) Delt(Cl(x)), reload = FALSE, na.value = NA, ...)
+
 ensure(serie, src = 'FRED', reload = FALSE, ...)
 }
 \arguments{
