@@ -133,7 +133,7 @@ shrinkage.p <- function(returns, sample)
   term.1 <- t(z^2) %*% z^2
   term.2 <- 2 * sample * (t(z) %*% z)
   term.3 <- sample^2
-  phi.mat <- (term.1 - term.2 + term.3) / T
+  phi.mat <- (term.1 - term.2 + term.3)
 
   phi <- list()
   phi$sum <- sum(phi.mat)
@@ -166,18 +166,12 @@ shrinkage.r <- function(returns, sample, pi.est)
   # This can be simplified to diag(sample) * sample, but this expansion is
   # a bit more explicit in the intent (unless you're an R guru)
   term.4 <- (diag(sample) %o% rep(1,N)) * sample
-  script.is <- (term.1 - term.2 - term.3 + term.4) / T
+  script.is <- (term.1 - term.2 - term.3 + term.4)
 
   # Create matrix of quotients
-  ratios <- (diag(sample) %o% diag(sample)^-1)^0.5
-
-  # Sum results
-  rhos <- 0.5 * r.bar * (ratios * script.is + t(ratios) * t(script.is))
-
-  # Add in sum of diagonals of pi
-  sum(pi.est$diags, na.rm=TRUE) 
-  + sum(rhos[lower.tri(rhos)], na.rm=TRUE) 
-  + sum(rhos[upper.tri(rhos)], na.rm=TRUE)
+  sqrtvar <- sqrt(diag(sample));
+  sum(pi.est$diags, na.rm=TRUE) +
+    r.bar * sum(((1/sqrtvar) %*% t(sqrtvar)) * script.is)
 }
 
 # Misspecification of the model covariance matrix

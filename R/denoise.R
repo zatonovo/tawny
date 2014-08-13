@@ -53,12 +53,13 @@ denoise(m, estimator) %as%
 #   Fit to distribution and get lambda.plus
 #   Clean function
 #   
-# p <- create(TawnyPortfolio, h, 90)
-# denoise(p,create(RandomMatrixDenoiser))
-#
 # s <- c('FCX','AAPL','JPM','AMZN','VMW','TLT','GLD','FXI','ILF','XOM')
 # p <- TawnyPortfolio(s)
 # w <- rollapply(p, function(x) denoise(x, RandomMatrixDenoiser()))
+#'
+#' @example
+#' m <- matrix(rnorm(100*10), ncol=10)
+#' z <- denoise(m, RandomMatrixDenoiser())
 denoise(m, estimator) %::%  matrix : RandomMatrixDenoiser : matrix
 denoise(m, estimator) %as% 
 {
