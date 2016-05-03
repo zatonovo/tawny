@@ -19,8 +19,7 @@ cov.shrink(h) %as% { cov.shrink(h$returns) }
 
 # This is a general interface for shrinking
 cov.shrink(h, prior.fun) %::% a : Function : matrix
-cov.shrink(h, prior.fun=cov.prior.cc) %as%
-{
+cov.shrink(h, prior.fun=cov.prior.cc) %as% {
   S <- cov.sample(h)
 
   T <- nrow(h)
@@ -40,15 +39,13 @@ cov.shrink(h, prior.fun=cov.prior.cc) %as%
 # parameters - the sample covariance matrix and the number of rows (T) in the 
 # original returns stream.
 cov.shrink(m, T, constant.fun, prior.fun) %::% matrix : numeric : Function : Function : matrix
-cov.shrink(m, T, constant.fun, prior.fun=cov.prior.cc) %as%
-{
-  S <- h
-  F <- prior.fun(S)
-  d <- constant.fun(S, T)
+cov.shrink(m, T, constant.fun, prior.fun=cov.prior.cc) %as% {
+  F <- prior.fun(m)
+  d <- constant.fun(m, T)
 
   flog.trace("Got coefficient d = %s",d)
 
-  S.hat <- d * F + (1 - d) * S
+  S.hat <- d * F + (1 - d) * m
   S.hat
 }
 
@@ -59,8 +56,7 @@ cov.shrink(m, T, constant.fun, prior.fun=cov.prior.cc) %as%
 # p.cov <- cov.sample(p)
 
 cov.sample(returns) %::% AssetReturns : matrix
-cov.sample(returns) %as%
-{
+cov.sample(returns) %as% {
   # X is N x T
   T <- nrow(returns)
   X <- t(returns)
@@ -80,8 +76,7 @@ cov.sample(x) %as%
 ##############################################################################
 # Constant correlation target
 # S is sample covariance
-cov.prior.cc <- function(S)
-{
+cov.prior.cc <- function(S) {
   r.bar <- cor.mean(S)
   vars <- diag(S) %o% diag(S)
   F <- r.bar * (vars)^0.5
@@ -91,14 +86,12 @@ cov.prior.cc <- function(S)
 
 # This returns a covariance matrix based on the identity (i.e. no correlation)
 # S is sample covariance
-cov.prior.identity <- function(S)
-{
+cov.prior.identity <- function(S) {
   return(diag(nrow(S)))
 }
 
 # Get mean of correlations from covariance matrix
-cor.mean <- function(S)
-{
+cor.mean <- function(S) {
   N <- ncol(S)
   cors <- cov2cor(S)
   2 * sum(cors[lower.tri(cors)], na.rm=TRUE) / (N^2 - N)
@@ -107,8 +100,7 @@ cor.mean <- function(S)
 # Calculate the optimal shrinkage intensity constant
 # returns : asset returns T x N
 # prior : biased estimator
-shrinkage.intensity <- function(returns, prior, sample)
-{
+shrinkage.intensity <- function(returns, prior, sample) {
   p <- shrinkage.p(returns, sample)
 
   r <- shrinkage.r(returns, sample, p)
@@ -122,8 +114,7 @@ shrinkage.intensity <- function(returns, prior, sample)
 # Used internally.
 # S <- cov.sample(ys)
 # ys.p <- shrinkage.p(ys, S)
-shrinkage.p <- function(returns, sample)
-{
+shrinkage.p <- function(returns, sample) {
   T <- nrow(returns)
   N <- ncol(returns)
   ones <- rep(1,T)
@@ -150,8 +141,7 @@ shrinkage.p <- function(returns, sample)
 #   S <- cov.sample(ys)
 #   ys.p <- shrinkage.p(ys, S)
 #   ys.r <- shrinkage.r(ys, S, ys.p)
-shrinkage.r <- function(returns, sample, pi.est)
-{
+shrinkage.r <- function(returns, sample, pi.est) {
   N <- ncol(returns)
   T <- nrow(returns)
   ones <- rep(1,T)
@@ -181,8 +171,7 @@ shrinkage.r <- function(returns, sample, pi.est)
 }
 
 # Misspecification of the model covariance matrix
-shrinkage.c <- function(prior, sample)
-{
+shrinkage.c <- function(prior, sample) {
   squares <- (prior - sample)^2
   sum(squares, na.rm=TRUE)
 }
