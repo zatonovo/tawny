@@ -20,7 +20,7 @@ install:
       lmodern texlive-fonts-recommended texlive-fonts-extra
   - "[ ! -d ~/R ] && mkdir ~/R"
   - git clone https://github.com/muxspace/crant.git ~/crant
-  - rpackage RUnit futile.options
+  - rpackage RUnit RMTstat futile.options
   - rpackage zoo xts quantmod PerformanceAnalytics
   - rpackage https://github.com/zatonovo/lambda.r.git
   - rpackage https://github.com/zatonovo/lambda.tools.git
