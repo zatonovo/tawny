@@ -3,7 +3,7 @@ language: python
 
 # environment variables
 env:
-  - R_LIBS_USER=~/R
+  - R_LIBS_USER=~/R PATH=$PATH:~/crant
 
 # install dependencies
 install:
@@ -19,19 +19,15 @@ install:
       qpdf texinfo texlive-latex-recommended texlive-latex-extra 
       lmodern texlive-fonts-recommended texlive-fonts-extra
   - "[ ! -d ~/R ] && mkdir ~/R"
-  - R --version
-  - R --vanilla -e '.libPaths(); sessionInfo()'
-  - R --vanilla -e 'options(repos = c("http://rforge.net", "http://cran.rstudio.org"))'
-      -e 'install.packages(c("devtools","testthat","futile.options"))'
-      -e 'install.packages(c("zoo","xts","quantmod","PerformanceAnalytics"))'
-      -e 'library(devtools)'
-      -e 'install_github("lambda.r","zatonovo")'
-      -e 'install_github("lambda.tools","zatonovo")'
-      -e 'install_github("futile.logger","zatonovo")'
-      -e 'install_github("futile.matrix","muxspace")'
-      -e 'install_github("tawny.types","muxspace")'
-      -e 'install()'
   - git clone https://github.com/muxspace/crant.git ~/crant
+  - rpackage RUnit futile.options
+  - rpackage zoo xts quantmod PerformanceAnalytics
+  - rpackage https://github.com/zatonovo/lambda.r.git
+  - rpackage https://github.com/zatonovo/lambda.tools.git
+  - rpackage https://github.com/zatonovo/futile.logger.git
+  - rpackage https://github.com/zatonovo/futile.matrix.git
+  - rpackage https://github.com/zatonovo/tawny.types.git
+  - R --vanilla -e '.libPaths(); sessionInfo()'
 
 # run tests
 script:
