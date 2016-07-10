@@ -65,6 +65,7 @@ divergence(p, count, filter, algo) %when% {
   div <- function(junk, h.full)
   {
     h.window <- h.full[sample(index(h.full), p$window, replace=TRUE), ]
+    rownames(h.window) <- rownames(h.full)[1:p$window]
     c.sample <- cov2cor(cov.sample(h.window))
     p <- TawnyPortfolio(zoo(h.window, rownames(h.window)), p$window)
     c.model <- filter(p)
