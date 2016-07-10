@@ -60,10 +60,12 @@ measure - The type of divergence to calculate. Possible choices are information 
 data(sp500.subset)
 h <- sp500.subset
 
-plotDivergenceLimit.kl(100, 80:499, col='green', ylim=c(0,55))
-
 divergence(h, 25, filter=function(x) denoise(x, RandomMatrixDenoiser()))
 divergence(h, 25, filter=function(x) denoise(x, ShrinkageDenoiser()))
+
+\dontrun{
+plotDivergenceLimit.kl(100, 80:499, col='green', ylim=c(0,55))
+}
 
 }
 \keyword{ ts }
