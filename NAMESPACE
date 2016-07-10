@@ -1,5 +1,7 @@
 exportPattern("^[^\\.]")
 export(.cutoff)
+importFrom("stats", "cov2cor", "end", "sd", "start")
+importFrom("utils", "read.csv")
 import(lambda.r)
 import(lambda.tools)
 import(futile.logger)
