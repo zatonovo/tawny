@@ -3,8 +3,8 @@
 \alias{tawny}
 \docType{package}
 \title{
-  Provides various portfolio optimization strategies including random matrix 
-  theory and shrinkage estimators
+  Clean Covariance Matrices Using Random Matrix Theory and Shrinkage Estimators 
+  for Portfolio Optimization
 }
 \description{
   Portfolio optimization typically requires an estimate of a covariance matrix
