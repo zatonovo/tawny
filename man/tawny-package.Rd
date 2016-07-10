@@ -26,7 +26,7 @@
 \tabular{ll}{
 Package: \tab tawny\cr
 Type: \tab Package\cr
-Version: \tab 2.1.5\cr
+Version: \tab 2.1.6\cr
 Date: \tab 2016-07-10\cr
 License: \tab GPL-3\cr
 }
