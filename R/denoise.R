@@ -10,16 +10,16 @@ EmpiricalDenoiser(...) %as% Denoiser(...)
 # . cutoff.fn - A function
 # . clean.fn - A function
 RandomMatrixDenoiser(cor.fn=cor.empirical,
-  cutoff.fn=.cutoff, clean.fn=cor.clean, ...) %as%
-{
-  f <- RandomMatrixFilter(cor.fn=cor.fn, cutoff.fn=cutoff.fn, clean.fn=clean.fn, ...)
+    cutoff.fn=.cutoff,
+    clean.fn=cor.clean, ...) %as% {
+  f <- RandomMatrixFilter(cor.fn=cor.fn, cutoff.fn=cutoff.fn,
+    clean.fn=clean.fn, ...)
   class(f) <- c('Denoiser', class(f))
   f
 }
 
 # Specify market as a symbol if you want to shrink on residuals only
-ShrinkageDenoiser(prior.fun=cov.prior.cc, ...) %as%
-{
+ShrinkageDenoiser(prior.fun=cov.prior.cc, ...) %as% {
   Denoiser(prior.fun=prior.fun, ...)
 }
 
@@ -28,23 +28,20 @@ ShrinkageDenoiser(prior.fun=cov.prior.cc, ...) %as%
 # p <- TawnyPortfolio(h, 90)
 # denoise(p,SampleDenoiser())
 denoise(p, estimator) %::% TawnyPortfolio : Denoiser : matrix
-denoise(p, estimator) %as%
-{
+denoise(p, estimator) %as% {
   denoise(as.matrix(p$returns), estimator)
 }
 
 
 denoise(m, estimator) %::%  matrix : SampleDenoiser : matrix
-denoise(m, estimator) %as% 
-{
+denoise(m, estimator) %as% {
   cov2cor(cov.sample(m))
 }
 
 # p <- TawnyPortfolio(h, 90)
 # denoise(p,EmpiricalDenoiser())
 denoise(m, estimator) %::%  matrix : EmpiricalDenoiser : matrix
-denoise(m, estimator) %as% 
-{
+denoise(m, estimator) %as% {
   cor.empirical(m)
 }
 
@@ -53,15 +50,14 @@ denoise(m, estimator) %as%
 #   Fit to distribution and get lambda.plus
 #   Clean function
 #   
-# p <- create(TawnyPortfolio, h, 90)
-# denoise(p,create(RandomMatrixDenoiser))
+# p <- TawnyPortfolio(h, 90)
+# denoise(p, RandomMatrixDenoiser())
 #
 # s <- c('FCX','AAPL','JPM','AMZN','VMW','TLT','GLD','FXI','ILF','XOM')
 # p <- TawnyPortfolio(s)
 # w <- rollapply(p, function(x) denoise(x, RandomMatrixDenoiser()))
 denoise(m, estimator) %::%  matrix : RandomMatrixDenoiser : matrix
-denoise(m, estimator) %as% 
-{
+denoise(m, estimator) %as% {
   #filter.RMT(p$returns, hint=estimator$hint)
   # Use either a fit based on the theoretical shape or use asymptotics for an
   # analytical solution
@@ -120,8 +116,7 @@ denoise(h, estimator) %when% {
 # p <- TawnyPortfolio(h, 90)
 # denoise(p,ShrinkageDenoiser())
 denoise(m, estimator) %::%  matrix : ShrinkageDenoiser : matrix
-denoise(m, estimator) %as% 
-{
+denoise(m, estimator) %as% {
   cov2cor(cov.shrink(m, prior.fun=estimator$prior.fun))
 }
 
@@ -135,8 +130,7 @@ denoise(m, estimator) %as%
 #  es: eigenvalues and vectors
 #  lambda.plus: cutoff
 #  h: non-normalized returns matrix (only used for labels)
-cor.clean <- function(es, lambda.plus=1.6, h=NULL)
-{
+cor.clean <- function(es, lambda.plus=1.6, h=NULL) {
   e.values <- es$values
   avg <- mean(e.values[e.values < lambda.plus])
   e.values[e.values < lambda.plus] <- avg
@@ -156,8 +150,7 @@ cor.clean <- function(es, lambda.plus=1.6, h=NULL)
 
 # h TxM zoo returns matrix
 # This doesn't subtract the mean (based on the literature)
-cor.empirical <- function(h)
-{
+cor.empirical <- function(h) {
   # Normalize returns
   ns <- normalize(h)
 
