@@ -26,8 +26,8 @@
 \tabular{ll}{
 Package: \tab tawny\cr
 Type: \tab Package\cr
-Version: \tab 2.1.6\cr
-Date: \tab 2016-07-10\cr
+Version: \tab 2.1.7\cr
+Date: \tab 2018-04-20\cr
 License: \tab GPL-3\cr
 }
 There are a number of ways to use this package. At a high level, the estimation
